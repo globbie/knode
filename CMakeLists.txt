@@ -17,4 +17,4 @@ set(SOURCE_FILES
 add_library(kmq SHARED ${SOURCE_FILES})
 target_link_libraries(kmq event)
 
-add_subdirectory(examples)
+#add_subdirectory(examples)
