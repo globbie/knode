@@ -4,11 +4,11 @@ set(SOURCE_FILES
 )
 
 add_executable(kmq-ex-publisher ${SOURCE_FILES})
-target_link_libraries(kmq-ex-publisher kmq event)
+target_link_libraries(kmq-ex-publisher kmq ${LIBEVENT_LIBRARY})
 
 set(SOURCE_FILES
         subscriber.c
 )
 
 add_executable(kmq-ex-subscriber ${SOURCE_FILES})
-target_link_libraries(kmq-ex-subscriber kmq event)
+target_link_libraries(kmq-ex-subscriber kmq ${LIBEVENT_LIBRARY})

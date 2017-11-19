@@ -1,27 +1,46 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdint.h>
+#include <inttypes.h>
 
 #include <kmq.h>
 
-static int
-timer_tick_cb(struct kmqTimer *self)
+struct TimerContext
 {
-    // todo:
-    return -1;
+    struct kmqEndPoint *publisher;
+    uint8_t ticks_counter;
+};
+
+static int
+timer_tick_cb(struct kmqTimer *self, void *cb_arg)
+{
+    struct TimerContext *timer_ctx = cb_arg;
+    char ticks_str[4] = { '\0' }; // todo: fix magic
+    int error_code;
+
+    ++timer_ctx->ticks_counter;
+
+    snprintf(ticks_str, sizeof(ticks_str) - 1,
+             "%" PRIu8 "", timer_ctx->ticks_counter);
+
+    error_code = timer_ctx->publisher->send(timer_ctx->publisher,
+                                           ticks_str, sizeof(ticks_str));
+    return error_code;
 }
 
 int main(int argc, const char **argv)
 {
-    struct kmqKnode *knode;
-    struct kmqEndPoint *timer_publisher;
-    struct kmqTimer *timer;
+    struct kmqKnode *knode = NULL;
+    struct kmqEndPoint *timer_publisher = NULL;
+    struct kmqTimer *timer = NULL;
+
+    struct TimerContext timer_ctx = { 0 };
 
     const char *local_address = "127.0.0.1:8081";
 
     int error_code;
     int exit_code = EXIT_FAILURE;
-
 
     error_code = kmqKnode_new(&knode);
     if (error_code != 0) goto error;
@@ -30,7 +49,8 @@ int main(int argc, const char **argv)
     if (error_code != 0) goto error;
 
     error_code = timer_publisher->set_address(timer_publisher,
-                                              local_address, strlen(local_address));
+                                              local_address,
+                                              strlen(local_address));
     if (error_code != 0) goto error;
     timer_publisher->options.type = KMQ_SUB;
     timer_publisher->options.role = KMQ_INITIATOR;
@@ -42,8 +62,12 @@ int main(int argc, const char **argv)
     error_code = kmqTimer_new(&timer);
     if (error_code != 0) goto error;
 
+    timer_ctx.ticks_counter = 0;
+    timer_ctx.publisher = &timer_publisher;
+
     timer->options.tick = 5; // todo: make proper interface
     timer->callback = timer_tick_cb;
+    timer->callback_arg = &timer_ctx;
 
     error_code = timer->init(timer);
     if (error_code != 0) goto error;
