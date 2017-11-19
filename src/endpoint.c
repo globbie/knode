@@ -23,6 +23,7 @@ static int
 delete(struct kmqEndPoint *self)
 {
     free(self);
+    return 0;
 }
 
 int kmqEndPoint_new(struct kmqEndPoint **endpoint)

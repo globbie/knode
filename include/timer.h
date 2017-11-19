@@ -7,6 +7,7 @@ struct kmqTimer
     } options;
 
     int (*callback)(struct kmqTimer *self);
+    void *callback_arg;
 
     int (*init)(struct kmqTimer *self);
     int (*del)(struct kmqTimer *self);

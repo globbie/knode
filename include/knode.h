@@ -3,6 +3,7 @@
 #include <stdbool.h>
 
 #include <event2/event.h>
+#include <event2/listener.h>
 
 #include "endpoint.h"
 #include "timer.h"
