@@ -22,7 +22,7 @@ timer_tick_cb(struct kmqTimer *self, void *cb_arg)
     ++timer_ctx->ticks_counter;
 
     snprintf(ticks_str, sizeof(ticks_str) - 1,
-             "%" PRIu8 "", timer_ctx->ticks_counter);
+             "%"PRIu8, timer_ctx->ticks_counter);
 
     error_code = timer_ctx->publisher->send(timer_ctx->publisher,
                                            ticks_str, sizeof(ticks_str));
@@ -35,7 +35,7 @@ int main(int argc, const char **argv)
     struct kmqEndPoint *timer_publisher = NULL;
     struct kmqTimer *timer = NULL;
 
-    struct TimerContext timer_ctx = { 0 };
+    struct TimerContext timer_ctx;
 
     const char *local_address = "127.0.0.1:8081";
 
@@ -62,8 +62,10 @@ int main(int argc, const char **argv)
     error_code = kmqTimer_new(&timer);
     if (error_code != 0) goto error;
 
-    timer_ctx.ticks_counter = 0;
-    timer_ctx.publisher = &timer_publisher;
+    timer_ctx = (struct TimerContext) {
+                    .ticks_counter = 0,
+                    .publisher = timer_publisher
+                };
 
     timer->options.tick = 5; // todo: make proper interface
     timer->callback = timer_tick_cb;

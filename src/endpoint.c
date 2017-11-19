@@ -15,7 +15,6 @@ add_remote(struct kmqEndPoint *self, struct kmqRemoteEndPoint *remote)
 static int
 init(struct kmqEndPoint *self)
 {
-    free(self);
     return 0;
 }
 

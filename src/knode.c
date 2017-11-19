@@ -25,6 +25,12 @@ add_endpoint(struct kmqKnode *self, struct kmqEndPoint *endpoint)
 }
 
 static int
+add_timer(struct kmqKnode *self, struct kmqTimer *timer)
+{
+    return 0;
+}
+
+static int
 dispatch(struct kmqKnode *self)
 {
     printf("kmqKnode started\n");
@@ -65,6 +71,7 @@ int kmqKnode_new(struct kmqKnode **knode)
     self->dispatch = dispatch;
     self->del = delete;
     self->add_endpoint = add_endpoint;
+    self->add_timer = add_timer;
 
     *knode = self;
     return 0;
