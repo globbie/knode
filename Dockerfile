@@ -6,7 +6,8 @@ RUN apt-get update && apt-get -y install \
         make \
         libevent-dev \
         gdb \
-        valgrind
+        valgrind \
+        pkg-config
 
 ADD . /root/src
 
