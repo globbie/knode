@@ -4,7 +4,8 @@
 #include <kmq.h>
 
 static int
-timer_subscribber_callback(struct kmqEndPoint *timer_subscriber, const char *buf, size_t buf_len)
+timer_subscriber_cb(struct kmqEndPoint *timer_subscriber,
+                          const char *buf, size_t buf_len)
 {
     printf("%.*s\n", (int) buf_len, buf);
     return 0;
@@ -20,6 +21,7 @@ int main(int argc, const char **argv)
 
     int error_code;
     int exit_code = EXIT_FAILURE;
+
 
     error_code = kmqKnode_new(&knode);
     if (error_code != 0) goto error;
@@ -38,7 +40,7 @@ int main(int argc, const char **argv)
     timer_subscriber->options.type = KMQ_SUB;
     timer_subscriber->options.role = KMQ_INITIATOR;
     timer_subscriber->options.reliability = KMQ_ACK_OFF;
-    timer_subscriber->callback = timer_subscriber_callback;
+    timer_subscriber->callback = timer_subscriber_cb;
 
     error_code = timer_subscriber->init(timer_subscriber);
     if (error_code != 0) goto error;
@@ -54,7 +56,6 @@ int main(int argc, const char **argv)
 
     exit_code = EXIT_SUCCESS;
 error:
-
     if (timer_subscriber) timer_subscriber->del(timer_subscriber);
     if (remote_timer) remote_timer->del(remote_timer);
     if (knode) knode->del(knode);
