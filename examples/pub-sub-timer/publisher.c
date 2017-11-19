@@ -1,7 +1,15 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #include <kmq.h>
+
+static int
+timer_tick_cb(struct kmqTimer *self)
+{
+    // todo:
+    return -1;
+}
 
 int main(int argc, const char **argv)
 {
@@ -28,14 +36,14 @@ int main(int argc, const char **argv)
     timer_publisher->options.role = KMQ_INITIATOR;
     timer_publisher->options.reliability = KMQ_ACK_OFF;
 
-    error_code = timer->publisher->init(timer->publisher);
+    error_code = timer_publisher->init(timer_publisher);
     if (error_code != 0) goto error;
 
     error_code = kmqTimer_new(&timer);
     if (error_code != 0) goto error;
 
     timer->options.tick = 5; // todo: make proper interface
-    timer->options.callback = timer_tick_cb;
+    timer->callback = timer_tick_cb;
 
     error_code = timer->init(timer);
     if (error_code != 0) goto error;
@@ -50,6 +58,9 @@ int main(int argc, const char **argv)
 
     exit_code = EXIT_SUCCESS;
 error:
+    if (timer) timer->del(timer);
+    if (timer_publisher) timer_publisher->del(timer_publisher);
+    if (knode) knode->del(knode);
 
     return exit_code;
 }

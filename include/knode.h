@@ -5,6 +5,7 @@
 #include <event2/event.h>
 
 #include "endpoint.h"
+#include "timer.h"
 
 struct kmqKnode
 {
@@ -15,7 +16,10 @@ struct kmqKnode
     } signal;
 
     int (*dispatch)(struct kmqKnode *self);
+
     int (*add_endpoint)(struct kmqKnode *self, struct kmqEndPoint *endpoint);
+    int (*add_timer)(struct kmqKnode *self, struct kmqTimer *timer);
+
     int (*del)(struct kmqKnode *self);
 };
 

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #include "knode.h"
+#include "remote_endpoint.h"
 
 static void
 signal_cb(int sig, short what __attribute__((unused)), void *arg)
@@ -26,7 +27,6 @@ add_endpoint(struct kmqKnode *self, struct kmqEndPoint *endpoint)
 static int
 dispatch(struct kmqKnode *self)
 {
-
     printf("kmqKnode started\n");
     event_base_dispatch(self->evbase);
     printf("kmqKnode stopped\n");

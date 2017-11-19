@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #include <kmq.h>
 
@@ -13,15 +14,14 @@ timer_subscriber_cb(struct kmqEndPoint *timer_subscriber,
 
 int main(int argc, const char **argv)
 {
-    struct kmqKnode *knode;
-    struct kmqEndPoint *timer_subscriber;
-    struct kmqRemoteEndPoint *remote_timer;
+    struct kmqKnode *knode = NULL;
+    struct kmqEndPoint *timer_subscriber = NULL;
+    struct kmqRemoteEndPoint *remote_timer = NULL;
 
     const char *remote_timer_address = "127.0.0.1:8081";
 
     int error_code;
     int exit_code = EXIT_FAILURE;
-
 
     error_code = kmqKnode_new(&knode);
     if (error_code != 0) goto error;

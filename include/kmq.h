@@ -1,6 +1,7 @@
 #pragma once
 
-#include "processor.h"
+#include "knode.h"
 #include "endpoint.h"
-#include "channel.h"
+#include "remote_endpoint.h"
+#include "timer.h"
 
