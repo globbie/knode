@@ -21,7 +21,8 @@ signal_cb(int sig, short what __attribute__((unused)), void *arg)
 static int
 add_endpoint(struct kmqKnode *self, struct kmqEndPoint *endpoint)
 {
-    (void) self; (void) endpoint;
+    list_add_tail(&self->endpoints, &endpoint->knode_entry);
+
     return 0;
 }
 

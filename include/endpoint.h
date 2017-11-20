@@ -32,6 +32,8 @@ struct kmqEndPoint
         enum kmqEndPointType type;
         enum kmqEndPointRole role;
         enum kmqEndPointReliability reliability;
+
+
     } options;
 
     int (*callback)(struct kmqEndPoint *self, const char *buf, size_t buf_len);

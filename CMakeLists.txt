@@ -28,6 +28,7 @@ set(SOURCE_FILES
         src/endpoint.c
         src/remote_endpoint.c
         src/timer.c
+        src/utils/addrinfo.c
 )
 
 add_library(kmq SHARED ${SOURCE_FILES})
