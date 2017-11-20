@@ -8,11 +8,13 @@ static int
 timer_subscriber_cb(struct kmqEndPoint *timer_subscriber,
                           const char *buf, size_t buf_len)
 {
+    (void) timer_subscriber;
     printf("%.*s\n", (int) buf_len, buf);
     return 0;
 }
 
-int main(int argc, const char **argv)
+int main(int argc __attribute__((unused)),
+         const char **argv __attribute__((unused)))
 {
     struct kmqKnode *knode = NULL;
     struct kmqEndPoint *timer_subscriber = NULL;

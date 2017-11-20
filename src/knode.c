@@ -7,7 +7,7 @@
 static void
 signal_cb(int sig, short what __attribute__((unused)), void *arg)
 {
-    struct kmqKnode *knode = arg;
+    struct kmqKnode *knode = arg; (void) knode;
 
     switch (sig) {
     case SIGINT:
@@ -21,12 +21,14 @@ signal_cb(int sig, short what __attribute__((unused)), void *arg)
 static int
 add_endpoint(struct kmqKnode *self, struct kmqEndPoint *endpoint)
 {
+    (void) self; (void) endpoint;
     return 0;
 }
 
 static int
 add_timer(struct kmqKnode *self, struct kmqTimer *timer)
 {
+    (void) self; (void) timer;
     return 0;
 }
 
@@ -58,6 +60,8 @@ int kmqKnode_new(struct kmqKnode **knode)
 
     self = calloc(1, sizeof(*self));
     if (!self) return -1;
+
+    list_head_init(&self->endpoints);
 
     self->evbase = event_base_new();
     if (!self->evbase) goto error;

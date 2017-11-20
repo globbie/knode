@@ -19,6 +19,8 @@ timer_tick_cb(struct kmqTimer *self, void *cb_arg)
     char ticks_str[4] = { '\0' }; // todo: fix magic
     int error_code;
 
+    (void) self;
+
     ++timer_ctx->ticks_counter;
 
     snprintf(ticks_str, sizeof(ticks_str) - 1,
@@ -29,7 +31,8 @@ timer_tick_cb(struct kmqTimer *self, void *cb_arg)
     return error_code;
 }
 
-int main(int argc, const char **argv)
+int main(int argc __attribute__((unused)),
+         const char **argv __attribute__((unused)))
 {
     struct kmqKnode *knode = NULL;
     struct kmqEndPoint *timer_publisher = NULL;

@@ -5,6 +5,7 @@
 static int
 init(struct kmqTimer *self)
 {
+    (void) self;
     return 0;
 }
 
@@ -18,7 +19,6 @@ delete(struct kmqTimer *self)
 int kmqTimer_new(struct kmqTimer **timer)
 {
     struct kmqTimer *self;
-    int error_code;
 
     self = calloc(1, sizeof(*self));
     if (!self) return -1;
@@ -28,7 +28,4 @@ int kmqTimer_new(struct kmqTimer **timer)
 
     *timer = self;
     return 0;
-error:
-    delete(self);
-    return -1;
 }

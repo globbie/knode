@@ -2,6 +2,8 @@
 
 #include <stdbool.h>
 
+#include <glb-lib/list.h>
+
 #include <event2/event.h>
 #include <event2/listener.h>
 
@@ -15,6 +17,8 @@ struct kmqKnode
     struct {
         struct event *sigint;
     } signal;
+
+    struct list_head endpoints;
 
     int (*dispatch)(struct kmqKnode *self);
 

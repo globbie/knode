@@ -26,6 +26,8 @@ enum kmqEndPointReliability
 
 struct kmqEndPoint
 {
+    struct list_head knode_entry;
+
     struct {
         enum kmqEndPointType type;
         enum kmqEndPointRole role;

@@ -3,18 +3,21 @@
 static int
 set_address(struct kmqEndPoint *self, const char *address, size_t address_len)
 {
+    (void) self; (void) address; (void) address_len;
     return 0;
 }
 
 static int
 add_remote(struct kmqEndPoint *self, struct kmqRemoteEndPoint *remote)
 {
+    (void) self; (void) remote;
     return 0;
 }
 
 static int
 init(struct kmqEndPoint *self)
 {
+    (void) self;
     return 0;
 }
 
@@ -28,7 +31,6 @@ delete(struct kmqEndPoint *self)
 int kmqEndPoint_new(struct kmqEndPoint **endpoint)
 {
     struct kmqEndPoint *self;
-    int error_code;
 
     self = calloc(1, sizeof(*self));
     if (!self) return -1;
@@ -40,7 +42,7 @@ int kmqEndPoint_new(struct kmqEndPoint **endpoint)
 
     *endpoint = self;
     return 0;
-error:
-    delete(self);
-    return -1;
+//error:
+//    delete(self);
+//    return -1;
 }
