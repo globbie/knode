@@ -1,0 +1,3 @@
+[submodule "libs/glb-lib"]
+	path = libs/glb-lib
+	url = git@github.com:globbie/glb-lib.git
