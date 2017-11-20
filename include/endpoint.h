@@ -3,6 +3,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#include <glb-lib/list.h>
+
 #include "remote_endpoint.h"
 
 enum kmqEndPointType

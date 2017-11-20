@@ -18,7 +18,8 @@ find_path(LIBEVENT_INCLUDE_DIR NAMES event.h PATHS ${LIBEVENT_INCLUDE_DIRS})
 find_library(LIBEVENT_LIBRARY NAMES event PATHS ${LIBEVENT_LIBRARY_DIRS})
 include_directories(${LIBEVENT_INCLUDE_DIR})
 
-add_subdirectory(libs/glb-lib)
+add_subdirectory("${CMAKE_SOURCE_DIR}/libs/glb-lib")
+include_directories("${CMAKE_SOURCE_DIR}/libs/glb-lib/include")
 
 include_directories("${CMAKE_SOURCE_DIR}/include")
 
@@ -30,6 +31,6 @@ set(SOURCE_FILES
 )
 
 add_library(kmq SHARED ${SOURCE_FILES})
-target_link_libraries(kmq ${LIBEVENT_LIBRARY})
+target_link_libraries(kmq ${LIBEVENT_LIBRARY} glb-lib)
 
-add_subdirectory(examples/pub-sub-timer)
+add_subdirectory("${CMAKE_SOURCE_DIR}/examples/pub-sub-timer")
