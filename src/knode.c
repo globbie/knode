@@ -4,6 +4,37 @@
 #include "knode.h"
 #include "remote_endpoint.h"
 
+static int
+init(struct kmqKnode *self)
+{
+    struct kmqEndPoint *iter;
+
+    list_foreach_entry(iter, struct kmqEndPoint, &self->endpoints, knode_entry) {
+
+        switch (iter->options.role) {
+        case KMQ_TARGET:
+            iter->listener =\
+                evconnlistener_new_bind(self->evbase, iter->accept_cb, iter,
+                                        (LEV_OPT_CLOSE_ON_FREE |
+                                         LEV_OPT_CLOSE_ON_EXEC |
+                                         LEV_OPT_REUSEABLE
+                                        ), -1,
+                                        iter->options.address->ai_addr,
+                                        iter->options.address->ai_addrlen);
+            if (!iter->listener) return -1;
+
+            continue;
+        case KMQ_INITIATOR:
+            // todo: connect
+            continue;
+        default:
+            return -1;
+        }
+    }
+
+    return 0;
+}
+
 static void
 signal_cb(int sig, short what __attribute__((unused)), void *arg)
 {
@@ -36,6 +67,11 @@ add_timer(struct kmqKnode *self, struct kmqTimer *timer)
 static int
 dispatch(struct kmqKnode *self)
 {
+    int error_code;
+
+    error_code = init(self);
+    if (error_code != 0) return error_code;
+
     printf("kmqKnode started\n");
     event_base_dispatch(self->evbase);
     printf("kmqKnode stopped\n");

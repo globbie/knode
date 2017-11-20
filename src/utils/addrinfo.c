@@ -7,7 +7,7 @@
 
 int
 addrinfo_new(struct addrinfo **addrinfo,
-             const char **address, size_t address_len)
+             const char *address, size_t address_len)
 {
     char network_address[NETWORK_ADDRESS_MAX_LEN];
     char *port;

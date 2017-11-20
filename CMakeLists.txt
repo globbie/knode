@@ -22,6 +22,8 @@ add_subdirectory("${CMAKE_SOURCE_DIR}/libs/glb-lib")
 include_directories("${CMAKE_SOURCE_DIR}/libs/glb-lib/include")
 
 include_directories("${CMAKE_SOURCE_DIR}/include")
+include_directories("${CMAKE_SOURCE_DIR}/src")
+# todo: use target_include_directories
 
 set(SOURCE_FILES
         src/knode.c

@@ -1,10 +1,21 @@
 #include "endpoint.h"
 
+static void
+accept_cb(struct evconnlistener *listener, evutil_socket_t fd,
+          struct sockaddr *addr, int len, void *arg)
+{
+    struct kmqEndPoint *self = arg; (void) self;
+    (void) listener; (void) fd; (void) addr; (void) len;
+}
+
 static int
 set_address(struct kmqEndPoint *self, const char *address, size_t address_len)
 {
-    (void) self; (void) address; (void) address_len;
-    return 0;
+    int error_code;
+
+    error_code = addrinfo_new(&self->options.address, address, address_len);
+
+    return error_code;
 }
 
 static int
@@ -24,6 +35,7 @@ init(struct kmqEndPoint *self)
 static int
 delete(struct kmqEndPoint *self)
 {
+    if (self->options.address) addrinfo_delete(self->options.address);
     free(self);
     return 0;
 }
@@ -34,6 +46,8 @@ int kmqEndPoint_new(struct kmqEndPoint **endpoint)
 
     self = calloc(1, sizeof(*self));
     if (!self) return -1;
+
+    self->accept_cb = accept_cb;
 
     self->set_address = set_address;
     self->add_remote = add_remote;

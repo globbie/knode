@@ -3,9 +3,13 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#include <event2/event.h>
+#include <event2/listener.h>
+
 #include <glb-lib/list.h>
 
 #include "remote_endpoint.h"
+#include "utils/addrinfo.h"
 
 enum kmqEndPointType
 {
@@ -27,14 +31,18 @@ enum kmqEndPointReliability
 struct kmqEndPoint
 {
     struct list_head knode_entry;
+    struct evconnlistener *listener;
 
     struct {
         enum kmqEndPointType type;
         enum kmqEndPointRole role;
         enum kmqEndPointReliability reliability;
 
-
+        struct addrinfo *address;
     } options;
+
+    void (*accept_cb)(struct evconnlistener *listener, evutil_socket_t fd,
+                      struct sockaddr *addr, int len, void *arg);
 
     int (*callback)(struct kmqEndPoint *self, const char *buf, size_t buf_len);
 
