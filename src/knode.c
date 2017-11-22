@@ -7,31 +7,7 @@
 static int
 init(struct kmqKnode *self)
 {
-    struct kmqEndPoint *iter;
-
-    list_foreach_entry(iter, struct kmqEndPoint, &self->endpoints, knode_entry) {
-
-        switch (iter->options.role) {
-        case KMQ_TARGET:
-            iter->listener =\
-                evconnlistener_new_bind(self->evbase, iter->accept_cb, iter,
-                                        (LEV_OPT_CLOSE_ON_FREE |
-                                         LEV_OPT_CLOSE_ON_EXEC |
-                                         LEV_OPT_REUSEABLE
-                                        ), -1,
-                                        iter->options.address->ai_addr,
-                                        iter->options.address->ai_addrlen);
-            if (!iter->listener) return -1;
-
-            continue;
-        case KMQ_INITIATOR:
-            // todo: connect
-            continue;
-        default:
-            return -1;
-        }
-    }
-
+    (void) self;
     return 0;
 }
 
@@ -52,6 +28,18 @@ signal_cb(int sig, short what __attribute__((unused)), void *arg)
 static int
 add_endpoint(struct kmqKnode *self, struct kmqEndPoint *endpoint)
 {
+    endpoint->listener = \
+        evconnlistener_new_bind(self->evbase,
+                                endpoint->accept_cb,
+                                endpoint,
+                                (LEV_OPT_CLOSE_ON_FREE |
+                                 LEV_OPT_CLOSE_ON_EXEC |
+                                 LEV_OPT_REUSEABLE),
+                                -1,
+                                 endpoint->options.address->ai_addr,
+                                 endpoint->options.address->ai_addrlen);
+    if (!endpoint->listener) return -1;
+
     list_add_tail(&self->endpoints, &endpoint->knode_entry);
 
     return 0;
@@ -60,8 +48,21 @@ add_endpoint(struct kmqKnode *self, struct kmqEndPoint *endpoint)
 static int
 add_timer(struct kmqKnode *self, struct kmqTimer *timer)
 {
-    (void) self; (void) timer;
+    int error_code;
+
+    timer->event = \
+        event_new(self->evbase, -1, EV_PERSIST, timer->event_cb, timer);
+    if (!timer->event) return -1;
+
+    error_code = evtimer_add(timer->event, &timer->options.interval);
+    if (error_code != 0) goto error;
+
+    list_add_tail(&self->timers, &timer->knode_entry);
+
     return 0;
+error:
+    event_free(timer->event);
+    return -1;
 }
 
 static int
@@ -99,6 +100,7 @@ int kmqKnode_new(struct kmqKnode **knode)
     if (!self) return -1;
 
     list_head_init(&self->endpoints);
+    list_head_init(&self->timers);
 
     self->evbase = event_base_new();
     if (!self->evbase) goto error;

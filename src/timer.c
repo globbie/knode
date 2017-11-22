@@ -2,6 +2,14 @@
 
 #include "timer.h"
 
+static void
+event_cb(int fd __attribute__((unused)), short whar __attribute__((unused)),
+         void *arg)
+{
+    struct kmqTimer *self = arg;
+    self->callback(self, self->callback_arg);
+}
+
 static int
 init(struct kmqTimer *self)
 {
@@ -23,6 +31,7 @@ int kmqTimer_new(struct kmqTimer **timer)
     self = calloc(1, sizeof(*self));
     if (!self) return -1;
 
+    self->event_cb = event_cb;
     self->init = init;
     self->del = delete;
 

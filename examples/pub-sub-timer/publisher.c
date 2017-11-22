@@ -26,8 +26,11 @@ timer_tick_cb(struct kmqTimer *self, void *cb_arg)
     snprintf(ticks_str, sizeof(ticks_str) - 1,
              "%"PRIu8, timer_ctx->ticks_counter);
 
+    printf("timer tick: '%s'\n", ticks_str);
+
     error_code = timer_ctx->publisher->send(timer_ctx->publisher,
                                            ticks_str, sizeof(ticks_str));
+
     return error_code;
 }
 
@@ -70,7 +73,7 @@ int main(int argc __attribute__((unused)),
                     .publisher = timer_publisher
                 };
 
-    timer->options.tick = 5; // todo: make proper interface
+    timer->options.interval = (struct timeval) { .tv_sec = 5, .tv_usec = 0 };
     timer->callback = timer_tick_cb;
     timer->callback_arg = &timer_ctx;
 

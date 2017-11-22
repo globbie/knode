@@ -19,6 +19,7 @@ struct kmqKnode
     } signal;
 
     struct list_head endpoints;
+    struct list_head timers;
 
     int (*dispatch)(struct kmqKnode *self);
 

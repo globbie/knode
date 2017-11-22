@@ -1,5 +1,12 @@
 #include "endpoint.h"
 
+static int
+send_(struct kmqEndPoint *self, const char *buf, size_t buf_len)
+{
+    (void) self; (void) buf; (void) buf_len;
+    return 0;
+}
+
 static void
 accept_cb(struct evconnlistener *listener, evutil_socket_t fd,
           struct sockaddr *addr, int len, void *arg)
@@ -49,6 +56,7 @@ int kmqEndPoint_new(struct kmqEndPoint **endpoint)
 
     self->accept_cb = accept_cb;
 
+    self->send = send_;
     self->set_address = set_address;
     self->add_remote = add_remote;
     self->init = init;
