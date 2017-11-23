@@ -1,13 +1,13 @@
 FROM debian:9
 
-ADD . /root/project
-
 RUN apt-get update && apt-get -y install \
         gcc \
         cmake \
         make \
         libevent-dev \
         pkg-config
+
+ADD . /root/project
 
 RUN cd /root/project && rm -rf build && mkdir build && cd build && cmake .. && make
 
