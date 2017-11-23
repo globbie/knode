@@ -1,14 +1,13 @@
 FROM debian:9
 
+ADD . /root/project
+
 RUN apt-get update && apt-get -y install \
         gcc \
         cmake \
         make \
         libevent-dev \
-        gdb \
-        valgrind \
         pkg-config
 
-ADD . /root/src
+RUN cd /root/project && rm -rf build && mkdir build && cd build && cmake .. && make
 
-RUN cd /root/src && mkdir -p build && cd build && cmake -DCMAKE_BUILD_TYPE=Debug .. && make

@@ -31,6 +31,8 @@ enum kmqEndPointReliability
 struct kmqEndPoint
 {
     struct list_head knode_entry;
+    struct list_head remotes;
+
     struct evconnlistener *listener;
 
     struct {
@@ -43,6 +45,8 @@ struct kmqEndPoint
 
     void (*accept_cb)(struct evconnlistener *listener, evutil_socket_t fd,
                       struct sockaddr *addr, int len, void *arg);
+
+    int (*connect)(struct kmqEndPoint *self, struct event_base *evbase);
 
     int (*callback)(struct kmqEndPoint *self, const char *buf, size_t buf_len);
 

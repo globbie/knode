@@ -28,17 +28,22 @@ signal_cb(int sig, short what __attribute__((unused)), void *arg)
 static int
 add_endpoint(struct kmqKnode *self, struct kmqEndPoint *endpoint)
 {
-    endpoint->listener = \
-        evconnlistener_new_bind(self->evbase,
-                                endpoint->accept_cb,
-                                endpoint,
-                                (LEV_OPT_CLOSE_ON_FREE |
-                                 LEV_OPT_CLOSE_ON_EXEC |
-                                 LEV_OPT_REUSEABLE),
-                                -1,
-                                 endpoint->options.address->ai_addr,
-                                 endpoint->options.address->ai_addrlen);
-    if (!endpoint->listener) return -1;
+    if (endpoint->options.role == KMQ_TARGET) {
+        endpoint->listener = \
+            evconnlistener_new_bind(self->evbase,
+                                    endpoint->accept_cb,
+                                    endpoint,
+                                    (LEV_OPT_CLOSE_ON_FREE |
+                                     LEV_OPT_CLOSE_ON_EXEC |
+                                     LEV_OPT_REUSEABLE),
+                                    -1,
+                                    endpoint->options.address->ai_addr,
+                                    endpoint->options.address->ai_addrlen);
+        if (!endpoint->listener) return -1;
+    } else if (endpoint->options.role == KMQ_INITIATOR) {
+         endpoint->connect(endpoint, self->evbase);
+         // todo: check error
+    }
 
     list_add_tail(&self->endpoints, &endpoint->knode_entry);
 

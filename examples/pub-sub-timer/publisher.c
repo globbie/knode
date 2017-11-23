@@ -58,8 +58,8 @@ int main(int argc __attribute__((unused)),
                                               local_address,
                                               strlen(local_address));
     if (error_code != 0) goto error;
-    timer_publisher->options.type = KMQ_SUB;
-    timer_publisher->options.role = KMQ_INITIATOR;
+    timer_publisher->options.type = KMQ_PUB;
+    timer_publisher->options.role = KMQ_TARGET;
     timer_publisher->options.reliability = KMQ_ACK_OFF;
 
     error_code = timer_publisher->init(timer_publisher);
