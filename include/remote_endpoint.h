@@ -20,14 +20,21 @@ struct kmqRemoteEndPoint
         struct addrinfo *address;
     } options;
 
-    int (*send)(struct kmqRemoteEndPoint *self, const char *buf, size_t buf_len);
+
+    // public iterface
+
+    int (*del)(struct kmqRemoteEndPoint *self);
+
+    int (*set_address)(struct kmqRemoteEndPoint *self,
+                       const char *address, size_t address_len);
+
+    // private interface
+
     int (*init)(struct kmqRemoteEndPoint *self, struct event_base *evbase);
+    int (*send)(struct kmqRemoteEndPoint *self, const char *buf, size_t buf_len);
     int (*connect)(struct kmqRemoteEndPoint *self, struct event_base *evbase);
     int (*accept)(struct kmqRemoteEndPoint *self, struct event_base *evbase,
                   evutil_socket_t fd);
-    int (*set_address)(struct kmqRemoteEndPoint *self,
-                       const char *address, size_t address_len);
-    int (*del)(struct kmqRemoteEndPoint *self);
 };
 
 int kmqRemoteEndPoint_new(struct kmqRemoteEndPoint **remote);

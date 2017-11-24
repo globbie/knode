@@ -4,6 +4,15 @@ static void
 event_cb(struct bufferevent *evbuf, short events, void *arg)
 {
     struct kmqRemoteEndPoint *self = arg;
+
+    if (events & BEV_EVENT_CONNECTED) {
+
+    } else if (events * BEV_EVENT_ERROR) {
+
+    } else if (events & BEV_EVENT_EOF) {
+
+    }
+
     printf("event_cb\n");
 }
 

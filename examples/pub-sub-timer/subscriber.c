@@ -42,7 +42,7 @@ int main(int argc __attribute__((unused)),
     timer_subscriber->options.type = KMQ_SUB;
     timer_subscriber->options.role = KMQ_INITIATOR;
     timer_subscriber->options.reliability = KMQ_ACK_OFF;
-    timer_subscriber->callback = timer_subscriber_cb;
+    timer_subscriber->options.callback = timer_subscriber_cb;
 
     error_code = timer_subscriber->init(timer_subscriber);
     if (error_code != 0) goto error;

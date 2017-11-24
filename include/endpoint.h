@@ -41,21 +41,24 @@ struct kmqEndPoint
         enum kmqEndPointReliability reliability;
 
         struct addrinfo *address;
+
+        int (*callback)(struct kmqEndPoint *self, const char *buf, size_t buf_len);
     } options;
 
-    void (*accept_cb)(struct evconnlistener *listener, evutil_socket_t fd,
-                      struct sockaddr *addr, int len, void *arg);
-
-    int (*connect)(struct kmqEndPoint *self, struct event_base *evbase);
-
-    int (*callback)(struct kmqEndPoint *self, const char *buf, size_t buf_len);
-
-    int (*send)(struct kmqEndPoint *self, const char *buf, size_t buf_len);
-    int (*set_address)(struct kmqEndPoint *self, const char *address, size_t address_len);
-    int (*add_remote)(struct kmqEndPoint *self, struct kmqRemoteEndPoint *remote);
+    // public interface
 
     int (*init)(struct kmqEndPoint *self);
     int (*del)(struct kmqEndPoint *self);
+
+    int (*set_address)(struct kmqEndPoint *self, const char *address, size_t address_len);
+    int (*add_remote)(struct kmqEndPoint *self, struct kmqRemoteEndPoint *remote);
+
+    int (*send)(struct kmqEndPoint *self, const char *buf, size_t buf_len);
+
+    // private interface
+    void (*accept_cb)(struct evconnlistener *listener, evutil_socket_t fd,
+                      struct sockaddr *addr, int len, void *arg);
+    int (*connect)(struct kmqEndPoint *self, struct event_base *evbase);
 };
 
 int kmqEndPoint_new(struct kmqEndPoint **endpoint);
