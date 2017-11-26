@@ -62,9 +62,6 @@ int main(int argc __attribute__((unused)),
     timer_publisher->options.role = KMQ_TARGET;
     timer_publisher->options.reliability = KMQ_ACK_OFF;
 
-    error_code = timer_publisher->init(timer_publisher);
-    if (error_code != 0) goto error;
-
     error_code = kmqTimer_new(&timer);
     if (error_code != 0) goto error;
 
@@ -77,13 +74,11 @@ int main(int argc __attribute__((unused)),
     timer->callback = timer_tick_cb;
     timer->callback_arg = &timer_ctx;
 
-    error_code = timer->init(timer);
-    if (error_code != 0) goto error;
-
     error_code = knode->add_endpoint(knode, timer_publisher);
     if (error_code != 0) goto error;
 
     error_code = knode->add_timer(knode, timer);
+    if (error_code != 0) goto error;
 
     error_code = knode->dispatch(knode);
     if (error_code != 0) goto error;

@@ -7,6 +7,8 @@ static void
 event_cb(struct bufferevent *evbuf, short events, void *arg)
 {
     struct kmqRemoteEndPoint *self = arg;
+    int error_code;
+
     (void) evbuf;
 
     printf("event_cb\n");
@@ -14,11 +16,19 @@ event_cb(struct bufferevent *evbuf, short events, void *arg)
     if (events & BEV_EVENT_CONNECTED) {
         printf("REP<%p>: connected\n", (void *) self);
 
-    } else if (events * BEV_EVENT_ERROR) {
+        error_code = self->event_cb(self, KMQ_EPEVENT_CONNECTED, self->cb_arg);
+
+    } else if (events & BEV_EVENT_ERROR ||
+               events & BEV_EVENT_WRITING ||
+               events & BEV_EVENT_READING) {
         printf("REP<%p>: error\n", (void *) self);
+
+        error_code = self->event_cb(self, KMQ_EPEVENT_ERROR, self->cb_arg);
 
     } else if (events & BEV_EVENT_EOF) {
         printf("REP<%p>: disconnected\n", (void *) self);
+
+        error_code = self->event_cb(self, KMQ_EPEVENT_DISCONNECTED, self->cb_arg);
     }
 }
 
@@ -106,7 +116,6 @@ set_address(struct kmqRemoteEndPoint *self, const char *address, size_t address_
 {
     return addrinfo_new(&self->options.address, address, address_len);
 }
-
 
 // note: accept_ and connect_ function are pretty much the same. todo: merge them
 static int

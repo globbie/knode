@@ -31,8 +31,10 @@ enum kmqEndPointReliability
 struct kmqEndPoint
 {
     struct list_head knode_entry;
+
     struct list_head remotes;
 
+    struct event_base *evbase;
     struct evconnlistener *listener;
 
     struct {
@@ -47,7 +49,7 @@ struct kmqEndPoint
 
     // public interface
 
-    int (*init)(struct kmqEndPoint *self);
+    int (*init)(struct kmqEndPoint *self, struct event_base *evbase);
     int (*del)(struct kmqEndPoint *self);
 
     int (*set_address)(struct kmqEndPoint *self, const char *address, size_t address_len);
@@ -58,8 +60,6 @@ struct kmqEndPoint
     // private interface
     void (*accept_cb)(struct evconnlistener *listener, evutil_socket_t fd,
                       struct sockaddr *addr, int len, void *arg);
-    int (*connect)(struct kmqEndPoint *self, struct event_base *evbase);
-    int (*bind)(struct kmqEndPoint *self, struct event_base *evbase);
 };
 
 int kmqEndPoint_new(struct kmqEndPoint **endpoint);

@@ -44,9 +44,6 @@ int main(int argc __attribute__((unused)),
     timer_subscriber->options.reliability = KMQ_ACK_OFF;
     timer_subscriber->options.callback = timer_subscriber_cb;
 
-    error_code = timer_subscriber->init(timer_subscriber);
-    if (error_code != 0) goto error;
-
     error_code = timer_subscriber->add_remote(timer_subscriber, remote_timer);
     if (error_code != 0) goto error;
 

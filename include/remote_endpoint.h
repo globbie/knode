@@ -10,6 +10,12 @@
 
 #include "utils/addrinfo.h"
 
+enum kmqEndPointEvent
+{
+    KMQ_EPEVENT_CONNECTED,
+    KMQ_EPEVENT_ERROR,
+    KMQ_EPEVENT_DISCONNECTED
+};
 
 struct kmqRemoteEndPoint
 {
@@ -22,6 +28,8 @@ struct kmqRemoteEndPoint
 
     int (*read_cb)(struct kmqRemoteEndPoint *remote,
                    const char *buf, size_t len, void *cb_arg);
+    int (*event_cb)(struct kmqRemoteEndPoint *remote,
+                    enum kmqEndPointEvent event, void *cb_arg);
     void *cb_arg;
 
     // public iterface

@@ -16,8 +16,7 @@ struct kmqTimer
     int (*callback)(struct kmqTimer *self, void *cb_arg);
     void *callback_arg;
 
-    void (*event_cb)(int fd, short what, void *arg);
-    int (*init)(struct kmqTimer *self);
+    int (*init)(struct kmqTimer *self, struct event_base *evbase);
     int (*del)(struct kmqTimer *self);
 };
 

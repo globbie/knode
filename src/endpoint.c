@@ -9,6 +9,41 @@ read_cb(struct kmqRemoteEndPoint *remote, const char *buf, size_t len,
     return self->options.callback(self, buf, len);
 }
 
+static int
+event_cb(struct kmqRemoteEndPoint *remote, enum kmqEndPointEvent event,
+         void *cb_arg)
+{
+    struct kmqEndPoint *self = cb_arg;
+    int error_code;
+
+    switch (event) {
+    case KMQ_EPEVENT_CONNECTED:
+        printf("EP<%p>: connection with REP<%p> established\n",
+               (void *) self, (void *) remote);
+        break;
+    case KMQ_EPEVENT_ERROR:
+        printf("EP<%p>: REP<%p> error occured\n",
+               (void *) self, (void *) remote);
+
+        if (self->options.role == KMQ_INITIATOR) {
+            error_code = remote->connect(remote, self->evbase);
+            if (error_code != 0) fprintf(stderr, "remote->connect() failed\n");
+        }
+
+        break;
+    case KMQ_EPEVENT_DISCONNECTED:
+        printf("EP<%p>: REP<%p> disconnected\n",
+               (void *) self, (void *) remote);
+        break;
+    default:
+        printf("EP<%p>: REP<%p> unknown error\n",
+                (void *) self, (void *) remote);
+        return -1;
+    }
+
+    return 0;
+}
+
 static void
 accept_cb(struct evconnlistener *listener, evutil_socket_t fd,
           struct sockaddr *addr, int len, void *arg)
@@ -107,6 +142,7 @@ static int
 add_remote(struct kmqEndPoint *self, struct kmqRemoteEndPoint *remote)
 {
     remote->read_cb = read_cb;
+    remote->event_cb = event_cb;
     remote->cb_arg = self;
 
     list_add_tail(&self->remotes, &remote->endpoint_entry);
@@ -114,10 +150,19 @@ add_remote(struct kmqEndPoint *self, struct kmqRemoteEndPoint *remote)
 }
 
 static int
-init(struct kmqEndPoint *self)
+init(struct kmqEndPoint *self, struct event_base *evbase)
 {
-    (void) self;
-    return 0;
+    int error_code = -1;
+
+    if (self->options.role == KMQ_TARGET) {
+        error_code = bind_(self, evbase);
+    } else if (self->options.role == KMQ_INITIATOR) {
+        error_code = connect_(self, evbase);
+    }
+
+    self->evbase = evbase;
+
+    return error_code;
 }
 
 static int
@@ -138,8 +183,6 @@ int kmqEndPoint_new(struct kmqEndPoint **endpoint)
     list_head_init(&self->remotes);
 
     self->send = send_;
-    self->connect = connect_;
-    self->bind = bind_;
     self->set_address = set_address;
     self->add_remote = add_remote;
     self->init = init;

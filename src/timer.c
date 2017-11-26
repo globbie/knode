@@ -11,10 +11,20 @@ event_cb(int fd __attribute__((unused)), short whar __attribute__((unused)),
 }
 
 static int
-init(struct kmqTimer *self)
+init(struct kmqTimer *self, struct event_base *evbase)
 {
-    (void) self;
+    int error_code;
+
+    self->event = event_new(evbase, -1, EV_PERSIST, event_cb, self);
+    if (!self->event) return -1;
+
+    error_code = evtimer_add(self->event, &self->options.interval);
+    if (error_code != 0) goto error;
+
     return 0;
+error:
+    event_free(self->event);
+    return -1;
 }
 
 static int
@@ -31,7 +41,6 @@ int kmqTimer_new(struct kmqTimer **timer)
     self = calloc(1, sizeof(*self));
     if (!self) return -1;
 
-    self->event_cb = event_cb;
     self->init = init;
     self->del = delete;
 
