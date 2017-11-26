@@ -9,6 +9,7 @@
 #include <glb-lib/list.h>
 
 #include "remote_endpoint.h"
+#include "timer.h"
 #include "utils/addrinfo.h"
 
 enum kmqEndPointType
@@ -33,9 +34,12 @@ struct kmqEndPoint
     struct list_head knode_entry;
 
     struct list_head remotes;
+    struct list_head reconnect_remotes;
 
     struct event_base *evbase;
     struct evconnlistener *listener;
+
+    struct kmqTimer *heartbeat;
 
     struct {
         enum kmqEndPointType type;
