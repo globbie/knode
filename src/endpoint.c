@@ -1,6 +1,14 @@
 #include "endpoint.h"
 
 
+static int
+read_cb(struct kmqRemoteEndPoint *remote, const char *buf, size_t len,
+        void *cb_arg)
+{
+    struct kmqEndPoint *self = cb_arg; (void) remote;
+    return self->options.callback(self, buf, len);
+}
+
 static void
 accept_cb(struct evconnlistener *listener, evutil_socket_t fd,
           struct sockaddr *addr, int len, void *arg)
@@ -98,6 +106,9 @@ set_address(struct kmqEndPoint *self, const char *address, size_t address_len)
 static int
 add_remote(struct kmqEndPoint *self, struct kmqRemoteEndPoint *remote)
 {
+    remote->read_cb = read_cb;
+    remote->cb_arg = self;
+
     list_add_tail(&self->remotes, &remote->endpoint_entry);
     return 0;
 }

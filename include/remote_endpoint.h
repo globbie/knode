@@ -10,16 +10,19 @@
 
 #include "utils/addrinfo.h"
 
+
 struct kmqRemoteEndPoint
 {
     struct list_head endpoint_entry;
-
     struct bufferevent *evbuf;
 
     struct {
         struct addrinfo *address;
     } options;
 
+    int (*read_cb)(struct kmqRemoteEndPoint *remote,
+                   const char *buf, size_t len, void *cb_arg);
+    void *cb_arg;
 
     // public iterface
 

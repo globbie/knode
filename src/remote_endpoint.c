@@ -68,6 +68,8 @@ read_cb(struct bufferevent *evbuf, void *arg)
         header = (struct chunk_header *) evbuffer_pullup(input, total_chunk_size);
 
         // todo: callback invocation
+        error_code = self->read_cb(self, header->payload, header->length, self->cb_arg);
+        if (error_code != 0) return;
 
         error_code = evbuffer_drain(input, total_chunk_size);
         if (error_code != 0) return;

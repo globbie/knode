@@ -9,7 +9,7 @@ timer_subscriber_cb(struct kmqEndPoint *timer_subscriber,
                           const char *buf, size_t buf_len)
 {
     (void) timer_subscriber;
-    printf("%.*s\n", (int) buf_len, buf);
+    printf("got message: '%.*s'\n", (int) buf_len, buf);
     return 0;
 }
 
