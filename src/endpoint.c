@@ -62,7 +62,7 @@ connect_(struct kmqEndPoint *self, struct event_base *evbase)
     list_foreach_entry(remote, struct kmqRemoteEndPoint,
                        &self->remotes, endpoint_entry) {
 
-        error_code = remote->init(remote, evbase);
+        error_code = remote->connect(remote, evbase);
         if (error_code != 0) fprintf(stderr, "remote->connect() failed,"
                                              " error: %d\n", error_code);
     }

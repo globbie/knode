@@ -24,7 +24,6 @@ struct kmqRemoteEndPoint
     // public iterface
 
     int (*del)(struct kmqRemoteEndPoint *self);
-
     int (*set_address)(struct kmqRemoteEndPoint *self,
                        const char *address, size_t address_len);
 
