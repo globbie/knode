@@ -5,6 +5,8 @@ event_cb(struct bufferevent *evbuf, short events, void *arg)
 {
     struct kmqRemoteEndPoint *self = arg;
 
+    (void) self; (void) evbuf;
+
     if (events & BEV_EVENT_CONNECTED) {
 
     } else if (events * BEV_EVENT_ERROR) {
@@ -20,6 +22,7 @@ static void
 write_cb(struct bufferevent *evbuf, void *arg)
 {
     struct kmqRemoteEndPoint *self = arg;
+    (void) self; (void) evbuf;
     printf("write_cb\n");
 }
 
@@ -27,6 +30,7 @@ static void
 read_cb(struct bufferevent *evbuf, void *arg)
 {
     struct kmqRemoteEndPoint *self = arg;
+    (void) self; (void) evbuf;
     printf("read_cb\n");
 }
 
@@ -44,6 +48,7 @@ send_(struct kmqRemoteEndPoint *self, const char *buf, size_t buf_len)
 static int
 connect_(struct kmqRemoteEndPoint *self, struct event_base *evbase)
 {
+    (void) self; (void) evbase;
     return 0;
 }
 

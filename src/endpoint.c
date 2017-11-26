@@ -1,5 +1,33 @@
 #include "endpoint.h"
 
+
+static void
+accept_cb(struct evconnlistener *listener, evutil_socket_t fd,
+          struct sockaddr *addr, int len, void *arg)
+{
+    struct kmqEndPoint *self = arg;
+    struct kmqRemoteEndPoint *remote;
+
+    int error_code;
+
+
+    (void) addr; (void) len;
+
+    error_code = kmqRemoteEndPoint_new(&remote);
+    if (error_code != 0) return;
+
+    error_code = remote->accept(remote, evconnlistener_get_base(listener), fd);
+    if (error_code != 0) goto error;
+
+    error_code = self->add_remote(self, remote);
+    if (error_code != 0) goto error;
+
+    printf("connection accepted\n");
+    return;
+error:
+    remote->del(remote);
+}
+
 static int
 send_(struct kmqEndPoint *self, const char *buf, size_t buf_len)
 {
@@ -42,28 +70,19 @@ connect_(struct kmqEndPoint *self, struct event_base *evbase)
     return 0;
 }
 
-static void
-accept_cb(struct evconnlistener *listener, evutil_socket_t fd,
-          struct sockaddr *addr, int len, void *arg)
+static int
+bind_(struct kmqEndPoint *self, struct event_base *evbase)
 {
-    struct kmqEndPoint *self = arg;
-    struct kmqRemoteEndPoint *remote;
+    self->listener = \
+        evconnlistener_new_bind(evbase, accept_cb,self,
+                (LEV_OPT_CLOSE_ON_FREE | LEV_OPT_CLOSE_ON_EXEC |
+                                                            LEV_OPT_REUSEABLE),
+                -1,
+                self->options.address->ai_addr,
+                self->options.address->ai_addrlen);
 
-    int error_code;
-
-    error_code = kmqRemoteEndPoint_new(&remote);
-    if (error_code != 0) return;
-
-    error_code = remote->accept(remote, evconnlistener_get_base(listener), fd);
-    if (error_code != 0) goto error;
-
-    error_code = self->add_remote(self, remote);
-    if (error_code != 0) goto error;
-
-    printf("connection accepted\n");
-    return;
-error:
-    remote->del(remote);
+    if (!self->listener) return -1;
+    return 0;
 }
 
 static int
@@ -107,9 +126,9 @@ int kmqEndPoint_new(struct kmqEndPoint **endpoint)
 
     list_head_init(&self->remotes);
 
-    self->accept_cb = accept_cb;
     self->send = send_;
     self->connect = connect_;
+    self->bind = bind_;
     self->set_address = set_address;
     self->add_remote = add_remote;
     self->init = init;

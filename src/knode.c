@@ -31,25 +31,11 @@ add_endpoint(struct kmqKnode *self, struct kmqEndPoint *endpoint)
     int error_code;
 
     if (endpoint->options.role == KMQ_TARGET) {
-
-        //endpoint->bind(endpoint, endpoint);
-
-        endpoint->listener = \
-            evconnlistener_new_bind(self->evbase,
-                                    endpoint->accept_cb,
-                                    endpoint,
-                                    (LEV_OPT_CLOSE_ON_FREE |
-                                     LEV_OPT_CLOSE_ON_EXEC |
-                                     LEV_OPT_REUSEABLE),
-                                    -1,
-                                    endpoint->options.address->ai_addr,
-                                    endpoint->options.address->ai_addrlen);
-
-        if (!endpoint->listener) return -1;
-
+        error_code = endpoint->bind(endpoint, self->evbase);
+        if (error_code != 0) return error_code;
     } else if (endpoint->options.role == KMQ_INITIATOR) {
-         error_code = endpoint->connect(endpoint, self->evbase);
-         return error_code;
+        error_code = endpoint->connect(endpoint, self->evbase);
+        if (error_code != 0) return error_code;
     }
 
     list_add_tail(&self->endpoints, &endpoint->knode_entry);

@@ -59,6 +59,7 @@ struct kmqEndPoint
     void (*accept_cb)(struct evconnlistener *listener, evutil_socket_t fd,
                       struct sockaddr *addr, int len, void *arg);
     int (*connect)(struct kmqEndPoint *self, struct event_base *evbase);
+    int (*bind)(struct kmqEndPoint *self, struct event_base *evbase);
 };
 
 int kmqEndPoint_new(struct kmqEndPoint **endpoint);
