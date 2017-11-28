@@ -1,7 +1,6 @@
 #include <string.h>
 
 #include "remote_endpoint.h"
-#include "task.h"
 
 static void
 event_cb(struct bufferevent *evbuf, short events, void *arg)
@@ -55,6 +54,7 @@ read_cb(struct bufferevent *evbuf, void *arg)
 
     printf("REP<%p>: read callback\n", (void *) self);
 
+    /*
     input = bufferevent_get_input(evbuf);
     if (!input) return;
 
@@ -85,15 +85,17 @@ read_cb(struct bufferevent *evbuf, void *arg)
         if (error_code != 0) return;
         bufferevent_setwatermark(evbuf, EV_READ, sizeof(*header), sizeof(*header));
     }
+    */
 }
 
 static int
 send_(struct kmqRemoteEndPoint *self, const char *buf, size_t buf_len)
 {
-    struct chunk_header header;
+    //struct chunk_header header;
     struct evbuffer *output;
     int error_code;
 
+    /*
     if (buf_len == 0) return -1;
 
     memset(&header, 0, sizeof(header));
@@ -107,6 +109,7 @@ send_(struct kmqRemoteEndPoint *self, const char *buf, size_t buf_len)
 
     error_code = evbuffer_add(output, buf, buf_len);
     if (error_code != 0) return -1;
+    */
 
     return 0;
 }
@@ -133,9 +136,10 @@ accept_(struct kmqRemoteEndPoint *self, struct event_base *evbase, evutil_socket
     error_code = bufferevent_enable(self->evbuf, EV_READ | EV_WRITE);
     if (error_code != 0) goto error;
 
+    /*
     bufferevent_setwatermark(self->evbuf, EV_READ,
             sizeof(struct chunk_header), sizeof(struct chunk_header));
-
+    */
     return 0;
 error:
     bufferevent_free(self->evbuf);
@@ -171,8 +175,10 @@ connect_(struct kmqRemoteEndPoint *self, struct event_base *evbase)
         if (error_code != 0) goto error;
     }
 
+    /*
     bufferevent_setwatermark(self->evbuf, EV_READ,
             sizeof(struct chunk_header), sizeof(struct chunk_header));
+    */
 
     return 0;
 error:
