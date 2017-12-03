@@ -31,6 +31,7 @@ set(SOURCE_FILES
         src/remote_endpoint.c
         src/timer.c
         src/task.c
+        src/chunk_pipeline.c
         src/utils/addrinfo.c
 )
 
