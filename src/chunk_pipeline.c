@@ -7,6 +7,15 @@
 #define DEF_CHUNK_SIZE (1 << 12)
 
 static int
+add_chunk(struct kmqChunkPipeline *self, struct chunk *chunk)
+{
+    list_add_tail(&self->chunks, &chunk->chunks_entry);
+    ++self->chunks_count;
+
+    return 0;
+}
+
+static int
 add_buffer(struct kmqChunkPipeline *self, const char *buf, size_t size)
 {
     struct chunk *last_chunk;
@@ -25,6 +34,7 @@ add_buffer(struct kmqChunkPipeline *self, const char *buf, size_t size)
             if (!last_chunk) return -1;
 
             list_add_tail(&self->chunks, &last_chunk->chunks_entry);
+            ++self->chunks_count;
         }
 
         chunk_free_size = self->chunk_size - last_chunk->payload_size;
@@ -61,6 +71,7 @@ kmqChunkPipeline_new(struct kmqChunkPipeline **pipeline)
     self->chunks_count_max = 10; // todo: fix hardcoded magic number
 
     self->add_buffer = add_buffer;
+    self->add_chunk = add_chunk;
     self->del = delete;
     self->chunk_size = DEF_CHUNK_SIZE;
 
@@ -68,3 +79,4 @@ kmqChunkPipeline_new(struct kmqChunkPipeline **pipeline)
 
     return 0;;
 }
+

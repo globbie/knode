@@ -97,7 +97,30 @@ error:
 static int
 schedule_task(struct kmqEndPoint *self, struct kmqTask *task)
 {
-    return -1;
+    int error_code = 0;
+
+    switch (self->options.type) {
+    case KMQ_PUB: {
+        struct kmqRemoteEndPoint *remote;
+
+        list_foreach_entry(remote, struct kmqRemoteEndPoint,
+                &self->remotes, endpoint_entry) {
+
+            error_code = remote->send(remote, task);
+            if (error_code != 0) {
+                fprintf(stderr, "remote->send() failed, error: %d\n", error_code);
+                //return -1;
+            }
+        }
+
+        break;
+    }
+    default:
+        printf("not implemented yet.\n");
+        return -1;
+    }
+
+    return 0;
 }
 
 /*

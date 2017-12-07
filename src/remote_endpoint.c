@@ -89,11 +89,24 @@ read_cb(struct bufferevent *evbuf, void *arg)
 }
 
 static int
-send_(struct kmqRemoteEndPoint *self, const char *buf, size_t buf_len)
+send_(struct kmqRemoteEndPoint *self, struct kmqTask *task)
 {
-    //struct chunk_header header;
+    struct kmqChunkPipeline *pipeline;
+    struct chunk *chunk, *save;
     struct evbuffer *output;
     int error_code;
+
+    // this implementation violates incapsulation
+    // todo: rewrite it
+
+    pipeline = task->output;
+
+    list_foreach_entry_safe(chunk, save, struct chunk, &pipeline->chunks, chunks_entry) {
+        // todo: add header
+        // todo: add payload
+        // todo: remove chunk from pipeline
+        // todo: free chunk
+    }
 
     /*
     if (buf_len == 0) return -1;

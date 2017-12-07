@@ -9,6 +9,7 @@
 #include <glb-lib/list.h>
 
 #include "utils/addrinfo.h"
+#include "task.h"
 
 enum kmqEndPointEvent
 {
@@ -41,7 +42,7 @@ struct kmqRemoteEndPoint
     // private interface
 
     int (*init)(struct kmqRemoteEndPoint *self, struct event_base *evbase);
-    int (*send)(struct kmqRemoteEndPoint *self, const char *buf, size_t buf_len);
+    int (*send)(struct kmqRemoteEndPoint *self, struct kmqTask *task);
     int (*connect)(struct kmqRemoteEndPoint *self, struct event_base *evbase);
     int (*accept)(struct kmqRemoteEndPoint *self, struct event_base *evbase,
                   evutil_socket_t fd);
