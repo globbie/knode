@@ -31,7 +31,7 @@ read_cb(struct kmqRemoteEndPoint *remote, const char *buf, size_t len,
         void *cb_arg)
 {
     struct kmqEndPoint *self = cb_arg; (void) remote;
-    return self->options.callback(self, buf, len);
+    return self->options.callback(self, NULL); // todo
 }
 
 static int
@@ -95,6 +95,13 @@ error:
 }
 
 static int
+schedule_task(struct kmqEndPoint *self, struct kmqTask *task)
+{
+    return -1;
+}
+
+/*
+static int
 send_(struct kmqEndPoint *self, const char *buf, size_t buf_len)
 {
     struct kmqRemoteEndPoint *remote;
@@ -116,6 +123,7 @@ send_(struct kmqEndPoint *self, const char *buf, size_t buf_len)
 
     return 0;
 }
+*/
 
 static int
 connect_(struct kmqEndPoint *self, struct event_base *evbase)
@@ -218,7 +226,7 @@ int kmqEndPoint_new(struct kmqEndPoint **endpoint)
     list_head_init(&self->remotes);
     list_head_init(&self->reconnect_remotes);
 
-    self->send = send_;
+    self->schedule_task = schedule_task;
     self->set_address = set_address;
     self->add_remote = add_remote;
     self->init = init;

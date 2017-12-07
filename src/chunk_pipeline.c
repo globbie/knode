@@ -29,7 +29,6 @@ add_buffer(struct kmqChunkPipeline *self, const char *buf, size_t size)
 
         chunk_free_size = self->chunk_size - last_chunk->payload_size;
 
-        // todo: replace it with min/max generic C11 macros
         copy_size = MIN(chunk_free_size, data_left);
 
         memcpy(last_chunk->payload + last_chunk->payload_size, buf + data_copied, copy_size);

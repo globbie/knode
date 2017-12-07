@@ -10,6 +10,7 @@
 
 #include "remote_endpoint.h"
 #include "timer.h"
+#include "task.h"
 #include "utils/addrinfo.h"
 
 enum kmqEndPointType
@@ -48,7 +49,7 @@ struct kmqEndPoint
 
         struct addrinfo *address;
 
-        int (*callback)(struct kmqEndPoint *self, const char *buf, size_t buf_len);
+        int (*callback)(struct kmqEndPoint *self, struct kmqTask *task);
     } options;
 
     // public interface
@@ -59,7 +60,7 @@ struct kmqEndPoint
     int (*set_address)(struct kmqEndPoint *self, const char *address, size_t address_len);
     int (*add_remote)(struct kmqEndPoint *self, struct kmqRemoteEndPoint *remote);
 
-    int (*send)(struct kmqEndPoint *self, const char *buf, size_t buf_len);
+    int (*schedule_task)(struct kmqEndPoint *self, struct kmqTask *task);
 
     // private interface
     void (*accept_cb)(struct evconnlistener *listener, evutil_socket_t fd,

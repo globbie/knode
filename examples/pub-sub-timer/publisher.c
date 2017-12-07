@@ -13,13 +13,17 @@ struct TimerContext
 };
 
 static int
-timer_tick_cb(struct kmqTimer *self, void *cb_arg)
+timer_tick_cb(struct kmqTimer *self __attribute__((unused)), void *cb_arg)
 {
     struct TimerContext *timer_ctx = cb_arg;
+    struct kmqTask *task = NULL;
+    struct kmqEndPoint *publisher = timer_ctx->publisher;
+
     char ticks_str[4] = { '\0' }; // todo: fix magic
     int error_code;
 
-    (void) self;
+    error_code = kmqTask_new(&task);
+    if (error_code != 0) return error_code;
 
     ++timer_ctx->ticks_counter;
 
@@ -28,9 +32,18 @@ timer_tick_cb(struct kmqTimer *self, void *cb_arg)
 
     printf("timer tick: '%s'\n", ticks_str);
 
-    error_code = timer_ctx->publisher->send(timer_ctx->publisher,
-                                           ticks_str, sizeof(ticks_str));
+    //error_code = timer_ctx->publisher->send(timer_ctx->publisher,
+    //                                       ticks_str, sizeof(ticks_str));
 
+    error_code = task->add_buffer(task, ticks_str, sizeof(ticks_str));
+    if (error_code != 0) goto error;
+
+    error_code = publisher->schedule_task(publisher, task);
+    if (error_code != 0) goto error;
+
+    return 0;
+error:
+    task->del(task);
     return error_code;
 }
 

@@ -4,12 +4,22 @@
 
 #include <kmq.h>
 
+/*
 static int
 timer_subscriber_cb(struct kmqEndPoint *timer_subscriber,
                           const char *buf, size_t buf_len)
 {
     (void) timer_subscriber;
     printf("got message: '%.*s'\n", (int) buf_len, buf);
+    return 0;
+}
+*/
+
+static int
+timer_subscriber_cb(struct kmqEndPoint *timer_subscriber, struct kmqTask *task)
+{
+    (void) timer_subscriber;
+    (void) task;
     return 0;
 }
 
