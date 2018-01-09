@@ -38,5 +38,6 @@ set(SOURCE_FILES
 add_library(kmq SHARED ${SOURCE_FILES})
 target_link_libraries(kmq ${LIBEVENT_LIBRARY} glb-lib)
 
+add_subdirectory("${CMAKE_SOURCE_DIR}/tools")
 add_subdirectory("${CMAKE_SOURCE_DIR}/examples/pub-sub-timer")
 
