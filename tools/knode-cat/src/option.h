@@ -3,13 +3,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-struct glbOption;
-
-struct glbOptType
-{
-    int (*parse)(struct glbOption *option, const char *input, size_t input_len);
-    int (*free)(struct glbOption *option);
-};
+struct glbOptType;
 
 struct glbOption
 {
@@ -22,6 +16,4 @@ struct glbOption
 
     struct glbOptType* type;
 };
-
-int glb_parse_options(struct glbOption *options, int argc, const char **argv);
 

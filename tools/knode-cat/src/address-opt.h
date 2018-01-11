@@ -2,7 +2,7 @@
 
 #include <stdlib.h>
 
-#include "option.h"
+#include "options.h"
 
 extern struct glbOptType kndAddressOptType;
 

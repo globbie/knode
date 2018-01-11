@@ -55,7 +55,7 @@ int main(int argc, const char **argv)
 
     error_code = glb_parse_options(options, argc, argv);
     if (error_code != 0) {
-        fprintf(stderr, "error: glb_parse_option() failed\n");
+        fprintf(stderr, "glb_parse_option() failed, error: '%s'\n", glb_get_options_status());
         return EXIT_FAILURE;
     }
 

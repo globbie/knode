@@ -3,6 +3,7 @@
 
 #include "options.h"
 
+static const char *options_status = "(none)";
 
 enum parser_state {
     ps_init,
@@ -22,6 +23,12 @@ static int
 show_help_message(struct glbOption *options, int argc, const char **argv)
 {
     return -1;
+}
+
+const char *
+glb_get_options_status(void)
+{
+    return options_status;
 }
 
 int
@@ -47,15 +54,20 @@ glb_parse_options(struct glbOption *options, int argc, const char **argv)
 
             case ps_init:
                 if (*cursor == '-') { state = ps_option_start; goto next_char; }
+
+                options_status = "unexpected option start";
                 return -1;
 
             case ps_option_start:
-
                 if (*cursor == '-') { state = ps_long_option_key_start; goto next_char; }
 
                 if (isalpha(*cursor)) {
                     state = ps_short_option_start;
-                    if (i == argc - 1) return -1;
+
+                    if (i == argc - 1) {
+                        options_status = "options argument expected";
+                        return -1;
+                    }
 
                     short_option = *cursor;
 
@@ -63,35 +75,29 @@ glb_parse_options(struct glbOption *options, int argc, const char **argv)
                     goto next_token;
                 }
 
+                options_status = "'-' must be followed by another '-' or alpha character";
                 return -1;
 
             case ps_short_option_start:
-                if (isalnum(*cursor)) {
-                    state = ps_short_option;
+                state = ps_short_option;
 
-                    value = cursor;
-                    value_len = 1;
+                value = cursor;
+                value_len = 1;
 
-                    goto next_char;
-                }
-
-                return -1;
+                goto next_char;
 
             case ps_short_option:
-                if (isalnum(*cursor)) {
+                if (*cursor != '\0') {
                     ++value_len;
                     goto next_char;
                 }
 
-                if (*cursor == '\0') {
-                    printf("\tgot short option value: '%.*s'\n", (int) value_len, value);
-                    state = ps_init;
-                    goto next_token;
-                }
-
-                return -1;
+                printf("\tgot short option value: '%.*s'\n", (int) value_len, value);
+                state = ps_init;
+                goto next_token;
 
             case ps_long_option_key_start:
+
                 if (isalpha(*cursor)) {
                     state = ps_long_option_key;
 
@@ -100,6 +106,8 @@ glb_parse_options(struct glbOption *options, int argc, const char **argv)
 
                     goto next_char;
                 }
+
+                options_status = "'--' must be followed by alpha character";
                 return -1;
 
             case ps_long_option_key:
@@ -114,6 +122,7 @@ glb_parse_options(struct glbOption *options, int argc, const char **argv)
                     goto next_char;
                 }
 
+                options_status = "long option must be followed by '=' character";
                 return -1;
 
             case ps_long_option_value_start:
@@ -123,19 +132,22 @@ glb_parse_options(struct glbOption *options, int argc, const char **argv)
                     state = ps_long_option_value;
                     goto next_char;
                 }
+
+                options_status = "long option value cannot be empty";
                 return -1;
 
             case ps_long_option_value:
                 if (*cursor != '\0') {
                     ++value_len;
                     goto next_char;
-                } else {
-                    printf("\tgot long option value: '%.*s'\n", (int) value_len, value);
-                    state = ps_init;
-                    goto next_token;
                 }
 
+                printf("\tgot long option value: '%.*s'\n", (int) value_len, value);
+                state = ps_init;
+                goto next_token;
+
             default:
+                options_status = "internal error";
                 return -1;
             } // switch
 
