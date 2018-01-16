@@ -1,22 +1,37 @@
 #include "address-opt.h"
+#include "utils/addrinfo.h"
 
-struct glbOptType kndAddressOptType = {
-    .parse = kndAddressOpt_parse,
-    .free = kndAddressOpt_free
-};
+#include <stdio.h>
 
-int
-kndAddressOpt_parse(struct glbOption *self, const char *input, size_t input_len)
+static int
+parse__(struct glbOption *self, const char *input, size_t input_len)
 {
-    return -1;
-}
+    int error_code;
+    struct addrinfo *addrinfo;
 
-int
-kndAddressOpt_free(struct glbOption *self)
-{
-    struct kndAddress *address = self->data;
-    //if (address) address->free(address);
+    self->data = NULL;
+
+    error_code = addrinfo_new(&addrinfo, input, input_len);
+    if (error_code != 0) return -1;
+
+    self->data = addrinfo;
+
     return 0;
 }
+
+static int
+free__(struct glbOption *self)
+{
+    if (self->data) free(self->data);
+    return 0;
+}
+
+struct glbOptType kndAddressOptType = {
+    .name = "KNODE-ADDRESS",
+    .has_arg = true,
+    .init = NULL,
+    .parse = parse__,
+    .free = free__
+};
 
 

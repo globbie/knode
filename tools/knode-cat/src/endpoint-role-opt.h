@@ -4,5 +4,5 @@
 
 #include <stdlib.h>
 
-extern struct glbOptType kndAddressOptType;
+extern struct glbOptType kndEndPointRoleType;
 

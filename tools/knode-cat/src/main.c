@@ -19,25 +19,28 @@ struct glbOption options[] = {
 
     {
         .name = "type",
+        .name_len = sizeof("type") - 1,
         .short_name = 't',
         .description = "Type of endpoint will be used here. Possible values: 'push', 'pull', 'pub', 'sub'",
         .required = false,
         .data = &config.endpoint_type,
-        .type = NULL
+        .type = &kndEndPointTypeType
     },
 
     {
         .name = "role",
+        .name_len = sizeof("role") - 1,
         .short_name = 'r',
         .description = "The role defines will this command initiate connection or wait it. "
                        "Possible values: 'target', 'initiator'",
         .required = false,
         .data = &config.endpoint_role,
-        .type = NULL
+        .type = &kndEndPointRoleType
     },
 
     {
         .name = "address",
+        .name_len = sizeof("address") - 1,
         .short_name = 'a',
         .description = "Address to bind to or to connect to (see role and type)",
         .required = true,

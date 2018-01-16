@@ -13,6 +13,8 @@ set(SOURCES
         src/options.c
         src/address-opt.c
         src/help-opt.c
+        src/endpoint-role-opt.c
+        src/endpoint-type-opt.c
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES})
