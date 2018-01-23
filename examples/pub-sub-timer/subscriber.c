@@ -31,6 +31,7 @@ int main(int argc __attribute__((unused)),
     struct kmqRemoteEndPoint *remote_timer = NULL;
 
     const char *remote_timer_address = "127.0.0.1:8081";
+    struct addrinfo *address = NULL;
 
     int error_code;
     int exit_code = EXIT_FAILURE;
@@ -41,9 +42,10 @@ int main(int argc __attribute__((unused)),
     error_code = kmqRemoteEndPoint_new(&remote_timer);
     if (error_code != 0) goto error;
 
-    error_code = remote_timer->set_address(remote_timer,
-                                           remote_timer_address,
-                                           strlen(remote_timer_address));
+    error_code = addrinfo_new(&address, remote_timer_address, strlen(remote_timer_address));
+    if (error_code != 0) goto error;
+
+    error_code = remote_timer->set_address(remote_timer, address);
     if (error_code != 0) goto error;
 
     error_code = kmqEndPoint_new(&timer_subscriber);
@@ -67,6 +69,7 @@ int main(int argc __attribute__((unused)),
 error:
     if (timer_subscriber) timer_subscriber->del(timer_subscriber);
     if (remote_timer) remote_timer->del(remote_timer);
+    if (address) addrinfo_delete(address);
     if (knode) knode->del(knode);
 
     return exit_code;

@@ -47,7 +47,7 @@ struct kmqEndPoint
         enum kmqEndPointRole role;
         enum kmqEndPointReliability reliability;
 
-        struct addrinfo *address;
+        const struct addrinfo *address;
 
         int (*callback)(struct kmqEndPoint *self, struct kmqTask *task);
     } options;
@@ -57,7 +57,7 @@ struct kmqEndPoint
     int (*init)(struct kmqEndPoint *self, struct event_base *evbase);
     int (*del)(struct kmqEndPoint *self);
 
-    int (*set_address)(struct kmqEndPoint *self, const char *address, size_t address_len);
+    int (*set_address)(struct kmqEndPoint *self, const struct addrinfo *addrinfo);
     int (*add_remote)(struct kmqEndPoint *self, struct kmqRemoteEndPoint *remote);
 
     int (*schedule_task)(struct kmqEndPoint *self, struct kmqTask *task);

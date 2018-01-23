@@ -183,13 +183,10 @@ bind_(struct kmqEndPoint *self, struct event_base *evbase)
 }
 
 static int
-set_address(struct kmqEndPoint *self, const char *address, size_t address_len)
+set_address(struct kmqEndPoint *self, const struct addrinfo *address)
 {
-    int error_code;
-
-    error_code = addrinfo_new(&self->options.address, address, address_len);
-
-    return error_code;
+    self->options.address = address;
+    return 0;
 }
 
 static int
@@ -224,7 +221,6 @@ init(struct kmqEndPoint *self, struct event_base *evbase)
 static int
 delete(struct kmqEndPoint *self)
 {
-    if (self->options.address) addrinfo_delete(self->options.address);
     if (self->heartbeat) self->heartbeat->del(self->heartbeat);
     free(self);
     return 0;

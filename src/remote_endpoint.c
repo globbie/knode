@@ -128,9 +128,10 @@ send_(struct kmqRemoteEndPoint *self, struct kmqTask *task)
 }
 
 static int
-set_address(struct kmqRemoteEndPoint *self, const char *address, size_t address_len)
+set_address(struct kmqRemoteEndPoint *self, const struct addrinfo *address)
 {
-    return addrinfo_new(&self->options.address, address, address_len);
+    self->options.address = address;
+    return 0;
 }
 
 // note: accept_ and connect_ function are pretty much the same. todo: merge them
@@ -212,7 +213,6 @@ delete(struct kmqRemoteEndPoint *self)
     printf("REP<%p>: delete\n", (void *) self);
 
     if (self->evbuf) bufferevent_free(self->evbuf);
-    if (self->options.address) addrinfo_delete(self->options.address);
     free(self);
     return 0;
 }

@@ -1,15 +1,10 @@
 #include <stdlib.h>
-#include <kmq.h>
 
 #include "options.h"
 #include "address-opt.h"
+#include "knode-cat.h"
 
-struct options
-{
-    enum kmqEndPointType endpoint_type;
-    enum kmqEndPointRole endpoint_role;
-    struct kndAddress *address;
-} config = {
+struct kmqKnodeCatConfig config = {
     .endpoint_type = KMQ_PUSH,
     .endpoint_role = KMQ_INITIATOR,
     .address = NULL
@@ -55,6 +50,8 @@ struct glbOption options[] = {
 int main(int argc, const char **argv)
 {
     int error_code;
+    int ret = EXIT_FAILURE;
+    struct kmqKnodeCat *service;
 
     error_code = glb_parse_options(options, argc, argv);
     if (error_code != 0) {
@@ -62,5 +59,18 @@ int main(int argc, const char **argv)
         return EXIT_FAILURE;
     }
 
-    return EXIT_SUCCESS;
+    error_code = kmqKnodeCat_new(&service, &config);
+    if (error_code != 0) goto exit;
+
+    error_code = service->start(service);
+    if (error_code != 0) {
+        fprintf(stderr, "service finished with failure\n");
+        goto exit;
+    }
+
+    ret = EXIT_SUCCESS;
+exit:
+    if (service) service->del(service);
+    return ret;
 }
+

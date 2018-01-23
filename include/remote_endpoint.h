@@ -24,7 +24,7 @@ struct kmqRemoteEndPoint
     struct bufferevent *evbuf;
 
     struct {
-        struct addrinfo *address;
+        const struct addrinfo *address;
     } options;
 
     int (*read_cb)(struct kmqRemoteEndPoint *remote,
@@ -37,7 +37,7 @@ struct kmqRemoteEndPoint
 
     int (*del)(struct kmqRemoteEndPoint *self);
     int (*set_address)(struct kmqRemoteEndPoint *self,
-                       const char *address, size_t address_len);
+                       const struct addrinfo *address);
 
     // private interface
 

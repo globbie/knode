@@ -57,6 +57,7 @@ int main(int argc __attribute__((unused)),
     struct TimerContext timer_ctx;
 
     const char *local_address = "127.0.0.1:8081";
+    struct addrinfo *address = NULL;
 
     int error_code;
     int exit_code = EXIT_FAILURE;
@@ -67,10 +68,12 @@ int main(int argc __attribute__((unused)),
     error_code = kmqEndPoint_new(&timer_publisher);
     if (error_code != 0) goto error;
 
-    error_code = timer_publisher->set_address(timer_publisher,
-                                              local_address,
-                                              strlen(local_address));
+    error_code = addrinfo_new(&address, local_address, strlen(local_address));
     if (error_code != 0) goto error;
+
+    error_code = timer_publisher->set_address(timer_publisher, address);
+    if (error_code != 0) goto error;
+
     timer_publisher->options.type = KMQ_PUB;
     timer_publisher->options.role = KMQ_TARGET;
     timer_publisher->options.reliability = KMQ_ACK_OFF;
@@ -100,6 +103,7 @@ int main(int argc __attribute__((unused)),
 error:
     if (timer) timer->del(timer);
     if (timer_publisher) timer_publisher->del(timer_publisher);
+    if (address) addrinfo_delete(address);
     if (knode) knode->del(knode);
 
     return exit_code;
