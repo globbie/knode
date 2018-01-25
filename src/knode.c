@@ -70,6 +70,13 @@ dispatch(struct kmqKnode *self)
 }
 
 static int
+stop(struct kmqKnode *self)
+{
+    event_base_loopbreak(self->evbase);
+    return 0;
+}
+
+static int
 delete(struct kmqKnode *self)
 {
     if (self->evbase) event_base_free(self->evbase);
@@ -101,6 +108,7 @@ int kmqKnode_new(struct kmqKnode **knode)
     if (error_code != 0) goto error;
 
     self->dispatch = dispatch;
+    self->stop = stop;
     self->del = delete;
     self->add_endpoint = add_endpoint;
     self->add_timer = add_timer;

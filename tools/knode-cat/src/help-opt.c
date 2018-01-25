@@ -23,6 +23,7 @@ init__(struct glbOption *self __attribute__((unused)), struct glbOption *options
         printf("\n");
     }
 
+    exit(0);
     return 0;
 }
 

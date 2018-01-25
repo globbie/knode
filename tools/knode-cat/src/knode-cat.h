@@ -2,6 +2,8 @@
 
 #include <kmq.h>
 
+#define STDIN_BUFFER_SIZE 3
+
 struct kmqKnodeCatConfig
 {
     enum kmqEndPointType endpoint_type;
@@ -19,10 +21,16 @@ struct kmqKnodeCat
 
     struct event *stdio_event;
 
+
+    struct kmqTask *current_task;
+
     // public methods
 
     int (*del)(struct kmqKnodeCat *self);
     int (*start)(struct kmqKnodeCat *self);
+    int (*stop)(struct kmqKnodeCat *self);
+    int (*get_task)(struct kmqKnodeCat *self, struct kmqTask **task);
 };
 
 int kmqKnodeCat_new(struct kmqKnodeCat **service, const struct kmqKnodeCatConfig *config);
+

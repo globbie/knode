@@ -22,6 +22,7 @@ struct kmqKnode
     struct list_head timers;
 
     int (*dispatch)(struct kmqKnode *self);
+    int (*stop)(struct kmqKnode *self);
 
     int (*add_endpoint)(struct kmqKnode *self, struct kmqEndPoint *endpoint);
     int (*add_timer)(struct kmqKnode *self, struct kmqTimer *timer);
