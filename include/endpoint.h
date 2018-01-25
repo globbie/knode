@@ -35,6 +35,7 @@ struct kmqEndPoint
     struct list_head knode_entry;
 
     struct list_head remotes;
+
     struct list_head reconnect_remotes;
 
     struct event_base *evbase;

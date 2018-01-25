@@ -9,12 +9,30 @@ parse__(struct glbOption *self, const char *input, size_t input_len)
     int error_code;
     struct addrinfo *addrinfo;
 
-    self->data = NULL;
-
     error_code = addrinfo_new(&addrinfo, input, input_len);
-    if (error_code != 0) return -1;
+    if (error_code != 0) {
+        return -1;
+    }
 
-    self->data = addrinfo;
+    *(struct addrinfo **)self->data = addrinfo;
+    return 0;
+}
+
+static int
+print__(struct glbOption *self)
+{
+    char hbuf[NI_MAXHOST];
+    char sbuf[NI_MAXSERV];
+
+    struct addrinfo *addrinfo = *(struct addrinfo **) self->data;
+
+
+    if (getnameinfo(addrinfo->ai_addr, addrinfo->ai_addrlen, hbuf,
+                    sizeof(hbuf), sbuf, sizeof(sbuf), NI_NUMERICHOST | NI_NUMERICSERV) == 0) {
+        printf("\t--%s=%s:%s\n", self->name, hbuf, sbuf);
+    } else {
+        printf("\t--%s=%s\n", self->name, "(unknown)");
+    }
 
     return 0;
 }
@@ -31,7 +49,8 @@ struct glbOptType kndAddressOptType = {
     .has_arg = true,
     .init = NULL,
     .parse = parse__,
-    .free = free__
+    .free = free__,
+    .print = print__
 };
 
 

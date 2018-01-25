@@ -15,6 +15,8 @@ init(struct kmqTimer *self, struct event_base *evbase)
 {
     int error_code;
 
+    fprintf(stderr, "debug2: initializing Timer\n");
+
     self->event = event_new(evbase, -1, EV_PERSIST, event_cb, self);
     if (!self->event) return -1;
 

@@ -22,9 +22,12 @@ struct glbOptType
     int (*init)(struct glbOption *option, struct glbOption *options);
     int (*parse)(struct glbOption *option, const char *input, size_t input_len);
     int (*free)(struct glbOption *option);
+    int (*print)(struct glbOption *option);
 };
 
 int glb_parse_options(struct glbOption *options, int argc, const char **argv);
 const char *glb_get_options_status(void);
+
+int glb_options_print(struct glbOption *options);
 
 

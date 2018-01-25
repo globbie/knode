@@ -31,11 +31,19 @@ free__(struct glbOption *self)
     return 0;
 }
 
+static int
+print__(struct glbOption *self)
+{
+    printf("\t--%s=%d // fixme: print string representation\n", self->name, *(int *) self->data);
+    return 0;
+}
+
 struct glbOptType kndEndPointTypeType = {
     .name = "TYPE",
     .has_arg = true,
     .init = NULL,
     .parse = parse__,
-    .free = free__
+    .free = free__,
+    .print = print__
 };
 

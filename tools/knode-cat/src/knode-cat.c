@@ -34,11 +34,13 @@ read_handler(struct kmqKnodeCat *self, int fd)
             goto error;
         }
         self->current_task = NULL;
+
+        self->stop(self);
     }
 
     char *input_start = input;
 
-    while (input_len > 0) {
+    while (input_len > 0) { // todo: use for loop
         struct kmqTask *task = self->current_task;
         char *new_line = memchr(input_start, '\n', input_len);
         size_t buffer_size;
@@ -95,6 +97,7 @@ next:
         input_len -= buffer_size + 1;
     }
 
+    return;
 error:
     self->stop(self);
 }
@@ -127,7 +130,10 @@ get_task__(struct kmqKnodeCat *self, struct kmqTask **task)
     }
 
     error_code = kmqTask_new(&self->current_task);
-    if (error_code != 0) return error_code;
+    if (error_code != 0) {
+        fprintf(stderr, "task allocation failed\n");
+        return error_code;
+    }
 
     *task = self->current_task;
 

@@ -59,6 +59,8 @@ int main(int argc, const char **argv)
         return EXIT_FAILURE;
     }
 
+    //glb_options_print(options);
+
     error_code = kmqKnodeCat_new(&service, &config);
     if (error_code != 0) goto exit;
 

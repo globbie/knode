@@ -11,7 +11,8 @@ init(struct kmqKnode *self)
     struct kmqTimer *timer;
     int error_code;
 
-    /* TODO
+    fprintf(stderr, "debug2: initializing Knode...\n");
+
     list_foreach_entry(endpoint, struct kmqEndPoint, &self->endpoints, knode_entry) {
         error_code = endpoint->init(endpoint, self->evbase);
         if (error_code != 0) return error_code;
@@ -21,7 +22,6 @@ init(struct kmqKnode *self)
         error_code = timer->init(timer, self->evbase);
         if (error_code != 0) return error_code;
     }
-    */
 
     return 0;
 }

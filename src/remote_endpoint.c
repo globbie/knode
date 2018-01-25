@@ -10,23 +10,18 @@ event_cb(struct bufferevent *evbuf, short events, void *arg)
 
     (void) evbuf;
 
-    printf("event_cb\n");
+    fprintf(stderr, "debug3: RemoteEndPoint<%p> event occured\n", (void *) self);
 
     if (events & BEV_EVENT_CONNECTED) {
-        printf("REP<%p>: connected\n", (void *) self);
-
+        fprintf(stderr, "debug3: RemoteEndPoint<%p> connected\n", (void *) self);
         error_code = self->event_cb(self, KMQ_EPEVENT_CONNECTED, self->cb_arg);
-
     } else if (events & BEV_EVENT_ERROR ||
                events & BEV_EVENT_WRITING ||
                events & BEV_EVENT_READING) {
-        printf("REP<%p>: error\n", (void *) self);
-
+        fprintf(stderr, "debug3: RemoteEndPoint<%p> error occured, error: '%s'\n", (void *) self, strerror(errno));
         error_code = self->event_cb(self, KMQ_EPEVENT_ERROR, self->cb_arg);
-
     } else if (events & BEV_EVENT_EOF) {
-        printf("REP<%p>: disconnected\n", (void *) self);
-
+        fprintf(stderr, "debug3: RemoteEndPoint<%p> disconnected\n", (void *) self);
         error_code = self->event_cb(self, KMQ_EPEVENT_DISCONNECTED, self->cb_arg);
     }
 }
@@ -36,8 +31,7 @@ write_cb(struct bufferevent *evbuf, void *arg)
 {
     struct kmqRemoteEndPoint *self = arg;
     (void) evbuf;
-
-    printf("REP<%p>: write callback\n", (void *) self);
+    fprintf(stderr, "debug3: RemoteEndPoint<%p> write callback\n", (void *) self);
 }
 
 // todo: all errors should bring REP into error state
@@ -52,7 +46,7 @@ read_cb(struct bufferevent *evbuf, void *arg)
 
     int error_code;
 
-    printf("REP<%p>: read callback\n", (void *) self);
+    fprintf(stderr, "debug3: RemoteEndPint<%p> read callback\n", (void *) self);
 
     /*
     input = bufferevent_get_input(evbuf);
@@ -99,6 +93,7 @@ send_(struct kmqRemoteEndPoint *self, struct kmqTask *task)
     // this implementation violates incapsulation
     // todo: rewrite it
 
+    /*
     pipeline = task->output;
 
     list_foreach_entry_safe(chunk, save, struct chunk, &pipeline->chunks, chunks_entry) {
@@ -107,6 +102,7 @@ send_(struct kmqRemoteEndPoint *self, struct kmqTask *task)
         // todo: remove chunk from pipeline
         // todo: free chunk
     }
+    */
 
     /*
     if (buf_len == 0) return -1;
@@ -140,7 +136,7 @@ accept_(struct kmqRemoteEndPoint *self, struct event_base *evbase, evutil_socket
 {
     int error_code;
 
-    printf("REP<%p>: accept\n", (void *) self);
+    fprintf(stderr, "debug2: RemoteEndPoint<%p> acepted connection\n", (void *) self);
 
     self->evbuf = bufferevent_socket_new(evbase, fd, BEV_OPT_CLOSE_ON_FREE);
     if (!self->evbuf) return -1;
@@ -165,7 +161,7 @@ connect_(struct kmqRemoteEndPoint *self, struct event_base *evbase)
 {
     int error_code;
 
-    printf("REP<%p>: connect\n", (void *) self);
+    fprintf(stderr, "debug2: RemoteEndPoint<%p> connecting...\n", (void *) self);
 
     self->evbuf = bufferevent_socket_new(evbase, -1, BEV_OPT_CLOSE_ON_FREE);
     if (!self->evbuf) return -1;
@@ -189,15 +185,15 @@ connect_(struct kmqRemoteEndPoint *self, struct event_base *evbase)
         if (error_code != 0) goto error;
     }
 
-    /*
-    bufferevent_setwatermark(self->evbuf, EV_READ,
-            sizeof(struct chunk_header), sizeof(struct chunk_header));
-    */
+    // todo:
+    //bufferevent_setwatermark(self->evbuf, EV_READ,
+    //        sizeof(struct chunk_header), sizeof(struct chunk_header));
 
     return 0;
 error:
-    bufferevent_free(self->evbuf);
-    return -1;
+    fprintf(stderr, "debug2: RemoteEndPoint<%p> connection failed\n", (void *) self);
+    //bufferevent_free(self->evbuf);
+    return 0;
 }
 
 static int
@@ -210,8 +206,6 @@ init(struct kmqRemoteEndPoint *self, struct event_base *evbase)
 static int
 delete(struct kmqRemoteEndPoint *self)
 {
-    printf("REP<%p>: delete\n", (void *) self);
-
     if (self->evbuf) bufferevent_free(self->evbuf);
     free(self);
     return 0;
@@ -233,8 +227,8 @@ kmqRemoteEndPoint_new(struct kmqRemoteEndPoint **remote)
     self->del = delete;
 
     *remote = self;
-    printf("REP<%p>: new\n", (void *) self);
     return 0;
+
 //error:
 //    delete(self);
 //    return -1;

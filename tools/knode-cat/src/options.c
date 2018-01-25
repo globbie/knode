@@ -61,6 +61,16 @@ glb_get_options_status(void)
 }
 
 int
+glb_options_print(struct glbOption *options)
+{
+    for (struct glbOption *i = options; i->name; ++i) {
+        if (i->type->print) i->type->print(i);
+    }
+
+    return 0;
+}
+
+int
 glb_parse_options(struct glbOption *options, int argc, const char **argv)
 {
     enum parser_state state = ps_init;
@@ -222,3 +232,4 @@ next_token:
 
     return 0;
 }
+

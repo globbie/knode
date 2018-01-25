@@ -9,7 +9,7 @@ heartbeat_cb(struct kmqTimer *timer, void *cb_arg)
 
     (void) timer;
 
-    printf("EP<%p>: heartbeat\n", (void *) self);
+    fprintf(stderr, "debug3: EndPoint<%p> heartbeat\n", (void *) self);
 
     list_foreach_entry_safe(remote, save, struct kmqRemoteEndPoint,
                        &self->reconnect_remotes, endpoint_entry) {
@@ -42,24 +42,16 @@ event_cb(struct kmqRemoteEndPoint *remote, enum kmqEndPointEvent event,
 
     switch (event) {
     case KMQ_EPEVENT_CONNECTED:
-        printf("EP<%p>: connection with REP<%p> established\n",
-               (void *) self, (void *) remote);
         break;
     case KMQ_EPEVENT_ERROR:
-        printf("EP<%p>: REP<%p> error occured\n",
-               (void *) self, (void *) remote);
-
         if (self->options.role == KMQ_INITIATOR) {
             list_move_tail(&self->reconnect_remotes, &remote->endpoint_entry);
         }
-
         break;
     case KMQ_EPEVENT_DISCONNECTED:
-        printf("EP<%p>: REP<%p> disconnected\n",
-               (void *) self, (void *) remote);
         break;
     default:
-        printf("EP<%p>: REP<%p> unknown error\n",
+        fprintf(stderr, "error: RemoteEndPoint<%p> got unkown error from RemoteEndPoint<%p>\n",
                 (void *) self, (void *) remote);
         return -1;
     }
@@ -88,7 +80,7 @@ accept_cb(struct evconnlistener *listener, evutil_socket_t fd,
     error_code = self->add_remote(self, remote);
     if (error_code != 0) goto error;
 
-    printf("connection accepted\n");
+    fprintf(stderr, "debug2: EndPoint<%p> connection accepted\n", (void *) self);
     return;
 error:
     remote->del(remote);
@@ -113,6 +105,20 @@ schedule_task(struct kmqEndPoint *self, struct kmqTask *task)
             }
         }
 
+        break;
+    }
+    case KMQ_PUSH: {
+        struct kmqRemoteEndPoint *remote;
+
+        remote = list_first_entry(&self->remotes, struct kmqRemoteEndPoint, endpoint_entry);
+        if (!remote) return -1; // todo: push to queue
+
+        error_code = remote->send(remote, task);
+        if (error_code != 0) {
+            fprintf(stderr, "remote->send() failed, error: %d\n", error_code);
+        }
+
+        list_move_tail(&self->remotes, &remote->endpoint_entry);
         break;
     }
     default:
@@ -154,7 +160,7 @@ connect_(struct kmqEndPoint *self, struct event_base *evbase)
     struct kmqRemoteEndPoint *remote;
     int error_code = 0;
 
-    printf("endpoint is trying to connect... \n");
+    fprintf(stderr, "debug2: EndPoint is trying to connect... \n");
 
     list_foreach_entry(remote, struct kmqRemoteEndPoint,
                        &self->remotes, endpoint_entry) {
@@ -171,14 +177,14 @@ static int
 bind_(struct kmqEndPoint *self, struct event_base *evbase)
 {
     self->listener = \
-        evconnlistener_new_bind(evbase, accept_cb,self,
+        evconnlistener_new_bind(evbase, accept_cb, self,
                 (LEV_OPT_CLOSE_ON_FREE | LEV_OPT_CLOSE_ON_EXEC |
                                                             LEV_OPT_REUSEABLE),
                 -1,
                 self->options.address->ai_addr,
                 self->options.address->ai_addrlen);
-
     if (!self->listener) return -1;
+
     return 0;
 }
 
@@ -204,6 +210,8 @@ static int
 init(struct kmqEndPoint *self, struct event_base *evbase)
 {
     int error_code = -1;
+
+    fprintf(stderr, "debug2: initializing EndPoint<%p>...\n", (void *) self);
 
     self->evbase = evbase;
 
