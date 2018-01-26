@@ -10,23 +10,19 @@ struct kmqTask
 {
     uint32_t task_id;
 
-    struct kmqChunkPipeline *input;
-    struct kmqChunkPipeline *output;
-
     struct sg_entry *sg_list;
-    size_t sg_item;
+    size_t sg_items_count;
+
+    size_t size;
 
     // public interface
+
+    int (*del)(struct kmqTask *self);
 
     int (*add_data_move)(struct kmqTask *self, char *data, size_t size);
     int (*add_data_copy)(struct kmqTask *self, const char *data, size_t size);
 
-    int (*add_buffer)(struct kmqTask *self, const char *buf, size_t len);
-    int (*add_chunk)(struct kmqTask *self, struct chunk *chunk);
-
-    int (*terminate)(struct kmqTask *self);
-
-    int (*del)(struct kmqTask *self);
+    int (*get_data)(struct kmqTask *self, size_t i, const char **data, size_t *size);
 };
 
 int kmqTask_new(struct kmqTask **task);

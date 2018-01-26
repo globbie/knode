@@ -1,6 +1,7 @@
 #include <string.h>
 
 #include "remote_endpoint.h"
+#include "proto/proto.h"
 
 static void
 event_cb(struct bufferevent *evbuf, short events, void *arg)
@@ -18,7 +19,12 @@ event_cb(struct bufferevent *evbuf, short events, void *arg)
     } else if (events & BEV_EVENT_ERROR ||
                events & BEV_EVENT_WRITING ||
                events & BEV_EVENT_READING) {
+
         fprintf(stderr, "debug3: RemoteEndPoint<%p> error occured, error: '%s'\n", (void *) self, strerror(errno));
+
+        bufferevent_free(self->evbuf);
+        self->evbuf = NULL;
+
         error_code = self->event_cb(self, KMQ_EPEVENT_ERROR, self->cb_arg);
     } else if (events & BEV_EVENT_EOF) {
         fprintf(stderr, "debug3: RemoteEndPoint<%p> disconnected\n", (void *) self);
@@ -35,80 +41,78 @@ write_cb(struct bufferevent *evbuf, void *arg)
 }
 
 // todo: all errors should bring REP into error state
+// todo: use evbuffer_peek instead of *_pullup to avoid memory reallocation
 static void
 read_cb(struct bufferevent *evbuf, void *arg)
 {
     struct kmqRemoteEndPoint *self = arg;
     struct evbuffer *input;
-    struct chunk_header *header;
-    size_t total_chunk_size;
     size_t input_length;
+    struct kmq_header *header;
+    size_t total_size;
 
     int error_code;
 
     fprintf(stderr, "debug3: RemoteEndPint<%p> read callback\n", (void *) self);
 
-    /*
     input = bufferevent_get_input(evbuf);
-    if (!input) return;
-
-    input_length = evbuffer_get_length(input);
-
-    if (input_length < sizeof(*header)) return;
-
-    header = (struct chunk_header *) evbuffer_pullup(input, sizeof(*header));
-    // todo: check if length fits size_t
-    total_chunk_size = sizeof(*header) + header->length;
-
-    if (input_length == sizeof(*header)) {
-        if (header->length == 0) return;
-
-        bufferevent_setwatermark(evbuf, EV_READ, total_chunk_size, total_chunk_size);
-        error_code = evbuffer_expand(input, total_chunk_size);
-        if (error_code != 0) return;
+    if (!input) {
+        return;
     }
 
-    if (input_length == total_chunk_size) {
-        header = (struct chunk_header *) evbuffer_pullup(input, total_chunk_size);
+    input_length = evbuffer_get_length(input);
+    if (input_length < sizeof(*header)) {
+        return;
+    }
 
-        // todo: callback invocation
-        error_code = self->read_cb(self, header->payload, header->length, self->cb_arg);
+    header = (struct kmq_header *) evbuffer_pullup(input, sizeof(*header));
+    total_size = sizeof(*header) + header->payload_size; // todo: check uint64_t fits into size_t
+
+    if (input_length == sizeof(*header)) {
+
+        if (header->payload_size == 0) {
+            fprintf(stderr, "warning: RemoteEndPoint<%p> got an empty task\n", (void *) self);
+            return;
+        }
+
+        bufferevent_setwatermark(evbuf, EV_READ, total_size, total_size);
+
+        error_code = evbuffer_expand(input, total_size);
+        if (error_code != 0) {
+            fprintf(stderr, "error: RemoteEndPoint<%p> failed to expand buffer\n", (void *) self);
+            return;
+        }
+    }
+
+
+    if (input_length == total_size) {
+        header = (struct kmq_header *) evbuffer_pullup(input, total_size);
+
+        // todo: create task
+        // todo: fill task with data
+        //error_code = self->read_cb(self, header->payload, header->payload_size, self->cb_arg);
         if (error_code != 0) return;
 
-        error_code = evbuffer_drain(input, total_chunk_size);
+        error_code = evbuffer_drain(input, total_size);
         if (error_code != 0) return;
         bufferevent_setwatermark(evbuf, EV_READ, sizeof(*header), sizeof(*header));
     }
-    */
 }
 
 static int
 send_(struct kmqRemoteEndPoint *self, struct kmqTask *task)
 {
-    struct kmqChunkPipeline *pipeline;
-    struct chunk *chunk, *save;
     struct evbuffer *output;
+    struct kmq_header header;
     int error_code;
 
-    // this implementation violates incapsulation
-    // todo: rewrite it
-
-    /*
-    pipeline = task->output;
-
-    list_foreach_entry_safe(chunk, save, struct chunk, &pipeline->chunks, chunks_entry) {
-        // todo: add header
-        // todo: add payload
-        // todo: remove chunk from pipeline
-        // todo: free chunk
-    }
-    */
-
-    /*
-    if (buf_len == 0) return -1;
+    if (task->size == 0) return -1;
+    if (!self->evbuf) return -1;
 
     memset(&header, 0, sizeof(header));
-    header.length = buf_len;
+
+    header.command = KMQ_CMD_DATA;
+    header.payload_size = task->size; // todo: check size_t fits into uint64_t
 
     output = bufferevent_get_output(self->evbuf);
     if (!output) return -1;
@@ -116,9 +120,17 @@ send_(struct kmqRemoteEndPoint *self, struct kmqTask *task)
     error_code = evbuffer_add(output, &header, sizeof(header));
     if (error_code != 0) return -1;
 
-    error_code = evbuffer_add(output, buf, buf_len);
-    if (error_code != 0) return -1;
-    */
+    for (size_t i = 0; i < task->sg_items_count; ++i) {
+        const char *data;
+        size_t size;
+
+        task->get_data(task, i, &data, &size);
+
+        error_code = evbuffer_add(output, data, size);
+        if (error_code != 0) return -1;
+    }
+
+    fprintf(stderr, "debug3: RemoteEndPoint<%p> Task<%p> was send\n", (void *) self, (void *) task);
 
     return 0;
 }
@@ -146,10 +158,9 @@ accept_(struct kmqRemoteEndPoint *self, struct event_base *evbase, evutil_socket
     error_code = bufferevent_enable(self->evbuf, EV_READ | EV_WRITE);
     if (error_code != 0) goto error;
 
-    /*
     bufferevent_setwatermark(self->evbuf, EV_READ,
-            sizeof(struct chunk_header), sizeof(struct chunk_header));
-    */
+            sizeof(struct kmq_header), sizeof(struct kmq_header));
+
     return 0;
 error:
     bufferevent_free(self->evbuf);
@@ -185,9 +196,8 @@ connect_(struct kmqRemoteEndPoint *self, struct event_base *evbase)
         if (error_code != 0) goto error;
     }
 
-    // todo:
     //bufferevent_setwatermark(self->evbuf, EV_READ,
-    //        sizeof(struct chunk_header), sizeof(struct chunk_header));
+    //        sizeof(struct kmq_header), sizeof(struct kmq_header));
 
     return 0;
 error:

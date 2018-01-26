@@ -35,7 +35,7 @@ timer_tick_cb(struct kmqTimer *self __attribute__((unused)), void *cb_arg)
     //error_code = timer_ctx->publisher->send(timer_ctx->publisher,
     //                                       ticks_str, sizeof(ticks_str));
 
-    error_code = task->add_buffer(task, ticks_str, sizeof(ticks_str));
+    error_code = task->add_data_copy(task, ticks_str, sizeof(ticks_str));
     if (error_code != 0) goto error;
 
     error_code = publisher->schedule_task(publisher, task);

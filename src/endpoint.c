@@ -15,13 +15,11 @@ heartbeat_cb(struct kmqTimer *timer, void *cb_arg)
                        &self->reconnect_remotes, endpoint_entry) {
 
         error_code = remote->connect(remote, self->evbase);
-        if (error_code != 0)
+        if (error_code != 0) {
             fprintf(stderr, "EP<%p>: remote->connect() failed\n", (void *) self);
-
-        list_move_tail(&self->remotes, &remote->endpoint_entry);
+            continue;
+        }
     }
-
-    // todo: add real heartbeat
 
     return 0;
 }
@@ -42,6 +40,9 @@ event_cb(struct kmqRemoteEndPoint *remote, enum kmqEndPointEvent event,
 
     switch (event) {
     case KMQ_EPEVENT_CONNECTED:
+        if (self->options.role == KMQ_INITIATOR) {
+            list_move_tail(&self->remotes, &remote->endpoint_entry);
+        }
         break;
     case KMQ_EPEVENT_ERROR:
         if (self->options.role == KMQ_INITIATOR) {
@@ -110,12 +111,18 @@ schedule_task(struct kmqEndPoint *self, struct kmqTask *task)
     case KMQ_PUSH: {
         struct kmqRemoteEndPoint *remote;
 
+        if (list_is_empty(&self->remotes)) return 0; // todo: add task to queue
+
         remote = list_first_entry(&self->remotes, struct kmqRemoteEndPoint, endpoint_entry);
         if (!remote) return -1; // todo: push to queue
 
+        fprintf(stderr, "debug2: EndPoint<%p> sending task<%p> to RemoteEndPoint<%p>\n",
+                (void *) self, (void *) task, (void *) remote);
+
         error_code = remote->send(remote, task);
         if (error_code != 0) {
-            fprintf(stderr, "remote->send() failed, error: %d\n", error_code);
+            fprintf(stderr, "error: EndPoint<%p>->remote<%p>->send() failed, error: %d\n",
+                    (void *) self, (void *) remote,  error_code);
         }
 
         list_move_tail(&self->remotes, &remote->endpoint_entry);
@@ -198,6 +205,8 @@ set_address(struct kmqEndPoint *self, const struct addrinfo *address)
 static int
 add_remote(struct kmqEndPoint *self, struct kmqRemoteEndPoint *remote)
 {
+    fprintf(stderr, "debug3: EndPoint<%p>->add_remote<%p>\n",
+            (void *) self, (void *) remote);
     remote->read_cb = read_cb;
     remote->event_cb = event_cb;
     remote->cb_arg = self;

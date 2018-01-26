@@ -17,20 +17,20 @@ read_handler(struct kmqKnodeCat *self, int fd)
 
     input_len = read(fd, input, sizeof(input));
     if (input_len < 0) {
-        fprintf(stderr, "error: read failed, error: '%s'\n", strerror(errno));
+        fprintf(stderr, "error: kmqKnodeCat read failed, error: '%s'\n", strerror(errno));
         goto error;
     }
 
     if (input_len == 0) {
-        fprintf(stderr, "debug2: end of file\n");
+        fprintf(stderr, "debug2: kmqKnodeCat end of file\n");
         event_del(self->stdio_event);
 
         if (!self->current_task) return;
 
-        fprintf(stderr, "debug3: scheduling task (eof)\n");
+        fprintf(stderr, "debug3: kmqKnodeCat scheduling task (eof)\n");
         error_code = self->endpoint->schedule_task(self->endpoint, self->current_task);
         if (error_code != 0) {
-            fprintf(stderr, "error: endpoint failed to schedule task\n");
+            fprintf(stderr, "error: kmqKnodeCat endpoint failed to schedule task\n");
             goto error;
         }
         self->current_task = NULL;
@@ -51,7 +51,7 @@ read_handler(struct kmqKnodeCat *self, int fd)
                 if (error_code != 0) goto error;
             }
 
-            fprintf(stderr, "debug3: add all to task\n");
+            fprintf(stderr, "debug3: kmqKnodeCat<%p> add all to task\n", (void *) self);
             error_code = task->add_data_copy(task, input_start, input_len);
             if (error_code != 0) goto error;
             return;
@@ -62,11 +62,11 @@ read_handler(struct kmqKnodeCat *self, int fd)
         if (buffer_size == 0) {
             if (!task) goto next;
 
-            fprintf(stderr, "debug3: scheduling task (new line only)\n");
+            fprintf(stderr, "debug3: kmqKnodeCat scheduling task (new line only)\n");
 
             error_code = self->endpoint->schedule_task(self->endpoint, task);
             if (error_code != 0) {
-                fprintf(stderr, "error: knode failed to schedule task\n");
+                fprintf(stderr, "error: kmqKnodeCat knode failed to schedule task\n");
                 goto error;
             }
             self->current_task = NULL;
@@ -80,14 +80,14 @@ read_handler(struct kmqKnodeCat *self, int fd)
 
         error_code = task->add_data_copy(task, input_start, buffer_size);
         if (error_code != 0) {
-            fprintf(stderr, "error: append data into task failed\n");
+            fprintf(stderr, "error: kmqKnodeCat append data into task failed\n");
             goto error;
         }
 
-        fprintf(stderr, "debug3: scheduling task (new line)\n");
+        fprintf(stderr, "debug3: kmqKnodeCat scheduling task (new line)\n");
         error_code = self->endpoint->schedule_task(self->endpoint, self->current_task);
         if (error_code != 0) {
-            fprintf(stderr, "error: knode failed to schedule task\n");
+            fprintf(stderr, "error: kmqKnodeCat knode failed to schedule task\n");
             goto error;
         }
         self->current_task = NULL;
@@ -102,13 +102,18 @@ error:
     self->stop(self);
 }
 
+int task_callback(struct kmqEndPoint *endpoint, struct kmqTask *task)
+{
+    return 0;
+}
+
 static void
 event_handler(int fd, short event, void *arg)
 {
     struct kmqKnodeCat *self = arg;
 
     if (event & EV_READ) {
-        fprintf(stderr, "debug2: read event\n");
+        fprintf(stderr, "debug2: kmqKnodeCat read event\n");
         read_handler(self, fd);
     }
 }
@@ -131,7 +136,7 @@ get_task__(struct kmqKnodeCat *self, struct kmqTask **task)
 
     error_code = kmqTask_new(&self->current_task);
     if (error_code != 0) {
-        fprintf(stderr, "task allocation failed\n");
+        fprintf(stderr, "error: kmqKnodeCat task allocation failed\n");
         return error_code;
     }
 
@@ -197,6 +202,8 @@ kmqKnodeCat_new(struct kmqKnodeCat **service, const struct kmqKnodeCatConfig *co
 
         error_code = self->endpoint->set_address(self->endpoint, self->config->address);
         if (error_code != 0) goto error;
+
+        self->endpoint->options.callback = task_callback;
     }
 
     error_code = self->knode->add_endpoint(self->knode, self->endpoint);

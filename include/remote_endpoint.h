@@ -27,10 +27,9 @@ struct kmqRemoteEndPoint
         const struct addrinfo *address;
     } options;
 
-    int (*read_cb)(struct kmqRemoteEndPoint *remote,
-                   const char *buf, size_t len, void *cb_arg);
-    int (*event_cb)(struct kmqRemoteEndPoint *remote,
-                    enum kmqEndPointEvent event, void *cb_arg);
+    int (*read_cb)(struct kmqRemoteEndPoint *remote, struct kmqTask *task, void *cb_arg);
+    int (*event_cb)(struct kmqRemoteEndPoint *remote, enum kmqEndPointEvent event, void *cb_arg);
+
     void *cb_arg;
 
     // public iterface
