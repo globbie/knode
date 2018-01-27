@@ -86,12 +86,16 @@ read_cb(struct bufferevent *evbuf, void *arg)
 
 
     if (input_length == total_size) {
+        struct kmqTask *task;
         header = (struct kmq_header *) evbuffer_pullup(input, total_size);
 
-        // todo: create task
-        // todo: fill task with data
-        //error_code = self->read_cb(self, header->payload, header->payload_size, self->cb_arg);
+        error_code = kmqTask_new(&task); // todo
+        error_code = task->copy_data(task, header->payload, header->payload_size);
+
+        error_code = self->read_cb(self, task, self->cb_arg);
         if (error_code != 0) return;
+
+        task->del(task);
 
         error_code = evbuffer_drain(input, total_size);
         if (error_code != 0) return;

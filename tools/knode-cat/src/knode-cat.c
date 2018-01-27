@@ -52,7 +52,7 @@ read_handler(struct kmqKnodeCat *self, int fd)
             }
 
             fprintf(stderr, "debug3: kmqKnodeCat<%p> add all to task\n", (void *) self);
-            error_code = task->add_data_copy(task, input_start, input_len);
+            error_code = task->copy_data(task, input_start, input_len);
             if (error_code != 0) goto error;
             return;
         }
@@ -78,7 +78,7 @@ read_handler(struct kmqKnodeCat *self, int fd)
             if (error_code != 0) goto error;
         }
 
-        error_code = task->add_data_copy(task, input_start, buffer_size);
+        error_code = task->copy_data(task, input_start, buffer_size);
         if (error_code != 0) {
             fprintf(stderr, "error: kmqKnodeCat append data into task failed\n");
             goto error;
@@ -104,6 +104,19 @@ error:
 
 int task_callback(struct kmqEndPoint *endpoint, struct kmqTask *task)
 {
+    int error_code;
+    (void) endpoint;
+
+    for (size_t i = 0; i < task->sg_items_count; ++i) {
+        const char *data;
+        size_t size;
+
+        error_code = task->get_data(task, i,  &data, &size);
+        if (!error_code) return -1;
+
+        printf("%.*s\n", (int) size, data);
+    }
+
     return 0;
 }
 

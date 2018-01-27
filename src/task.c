@@ -8,8 +8,8 @@
 #include "task.h"
 
 struct sg_entry {
-    char *data;
-    size_t size;
+    char   *data;
+    size_t  size;
 };
 
 static int
@@ -63,6 +63,10 @@ get_data(struct kmqTask *self, size_t i, const char **data, size_t *size)
 static int
 delete(struct kmqTask *self)
 {
+    for (size_t i = 0; i < self->sg_items_count; ++i) {
+        free(self->sg_list[i].data);
+    }
+
     if (self->sg_list) free(self->sg_list);
 
     return 0;
@@ -80,8 +84,8 @@ kmqTask_new(struct kmqTask **task)
     self->sg_list = calloc(TASK_SG_LIST_LEN, sizeof(self->sg_list));
     if (!self->sg_list) goto error;
 
-    self->add_data_move = add_data_move;
-    self->add_data_copy = add_data_copy;
+    self->move_data = add_data_move;
+    self->copy_data = add_data_copy;
     self->get_data = get_data;
     self->del = delete;
 

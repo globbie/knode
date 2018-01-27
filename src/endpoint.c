@@ -25,11 +25,11 @@ heartbeat_cb(struct kmqTimer *timer, void *cb_arg)
 }
 
 static int
-read_cb(struct kmqRemoteEndPoint *remote, const char *buf, size_t len,
-        void *cb_arg)
+read_cb(struct kmqRemoteEndPoint *remote, struct kmqTask *task, void *cb_arg)
 {
-    struct kmqEndPoint *self = cb_arg; (void) remote;
-    return self->options.callback(self, NULL); // todo
+    struct kmqEndPoint *self = cb_arg;
+
+    return self->options.callback(self, task);
 }
 
 static int
@@ -207,6 +207,7 @@ add_remote(struct kmqEndPoint *self, struct kmqRemoteEndPoint *remote)
 {
     fprintf(stderr, "debug3: EndPoint<%p>->add_remote<%p>\n",
             (void *) self, (void *) remote);
+
     remote->read_cb = read_cb;
     remote->event_cb = event_cb;
     remote->cb_arg = self;

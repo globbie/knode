@@ -19,8 +19,8 @@ struct kmqTask
 
     int (*del)(struct kmqTask *self);
 
-    int (*add_data_move)(struct kmqTask *self, char *data, size_t size);
-    int (*add_data_copy)(struct kmqTask *self, const char *data, size_t size);
+    int (*move_data)(struct kmqTask *self, char *data, size_t size);
+    int (*copy_data)(struct kmqTask *self, const char *data, size_t size);
 
     int (*get_data)(struct kmqTask *self, size_t i, const char **data, size_t *size);
 };
