@@ -1,6 +1,6 @@
 #pragma once
 
-#include "options.h"
+#include <glb-lib/options.h>
 
 #include <stdlib.h>
 

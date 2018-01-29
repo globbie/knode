@@ -1,5 +1,4 @@
 #include "endpoint-role-opt.h"
-#include "options.h"
 
 #include <endpoint.h>
 

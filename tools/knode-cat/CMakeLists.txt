@@ -10,13 +10,11 @@ set(CMAKE_C_STANDARD 11)
 
 set(SOURCES
         src/main.c
-        src/options.c
         src/address-opt.c
-        src/help-opt.c
         src/endpoint-role-opt.c
         src/endpoint-type-opt.c
         src/knode-cat.c
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES})
-target_link_libraries(${PROJECT_NAME} kmq ${LIBEVETN_LIBRARY} glb-lib)
+target_link_libraries(${PROJECT_NAME} kmq ${LIBEVETN_LIBRARY} glb-options)

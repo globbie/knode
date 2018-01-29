@@ -53,7 +53,7 @@ add_data_copy(struct kmqTask *self, const char *data, size_t size)
 }
 
 static int
-get_data(struct kmqTask *self, size_t i, const char **data, size_t *size)
+get_data(const struct kmqTask *self, size_t i, const char **data, size_t *size)
 {
     *data = self->sg_list[i].data;
     *size = self->sg_list[i].size;

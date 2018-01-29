@@ -1,8 +1,13 @@
 #include <stdlib.h>
 
-#include "options.h"
+#include <glb-lib/list.h>
+#include <glb-lib/options.h>
+
 #include "address-opt.h"
 #include "knode-cat.h"
+#include "address-opt.h"
+#include "endpoint-role-opt.h"
+#include "endpoint-type-opt.h"
 
 struct kmqKnodeCatConfig config = {
     .endpoint_type = KMQ_PUSH,
