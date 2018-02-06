@@ -17,8 +17,10 @@ find_path(LIBEVENT_INCLUDE_DIR NAMES event.h PATHS ${LIBEVENT_INCLUDE_DIRS})
 find_library(LIBEVENT_LIBRARY NAMES event PATHS ${LIBEVENT_LIBRARY_DIRS})
 include_directories(${LIBEVENT_INCLUDE_DIR})
 
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/libs/glb-lib")
-include_directories("${CMAKE_CURRENT_SOURCE_DIR}/libs/glb-lib/include")
+if(NOT TARGET glb-lib)
+    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/libs/glb-lib")
+    include_directories("${CMAKE_CURRENT_SOURCE_DIR}/libs/glb-lib/include")
+endif()
 
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/src")
