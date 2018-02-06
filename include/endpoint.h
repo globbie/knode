@@ -11,7 +11,6 @@
 #include "remote_endpoint.h"
 #include "timer.h"
 #include "task.h"
-#include "utils/addrinfo.h"
 
 enum kmqEndPointType
 {
