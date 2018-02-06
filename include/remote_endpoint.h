@@ -8,7 +8,6 @@
 
 #include <glb-lib/list.h>
 
-#include "utils/addrinfo.h"
 #include "task.h"
 
 enum kmqEndPointEvent
