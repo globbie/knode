@@ -10,7 +10,6 @@ set(CMAKE_C_STANDARD 11)
 
 set(SOURCES
         src/main.c
-        src/address-opt.c
         src/endpoint-role-opt.c
         src/endpoint-type-opt.c
         src/knode-cat.c

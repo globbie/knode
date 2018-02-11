@@ -34,6 +34,7 @@ set(SOURCE_FILES
         src/task.c
         src/chunk_pipeline.c
         src/utils/addrinfo.c
+        src/utils/address-opt.c
 )
 
 add_library(kmq SHARED ${SOURCE_FILES})
