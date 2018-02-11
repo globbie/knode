@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "addrinfo.h"
+#include <addrinfo.h>
 
 #define NETWORK_ADDRESS_MAX_LEN 256
 

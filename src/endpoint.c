@@ -28,6 +28,7 @@ static int
 read_cb(struct kmqRemoteEndPoint *remote, struct kmqTask *task, void *cb_arg)
 {
     struct kmqEndPoint *self = cb_arg;
+    (void) remote;
 
     return self->options.callback(self, task);
 }

@@ -1,5 +1,6 @@
 #include "address-opt.h"
-#include "utils/addrinfo.h"
+
+#include <addrinfo.h>
 
 #include <stdio.h>
 

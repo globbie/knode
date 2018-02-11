@@ -6,4 +6,5 @@
 #include "timer.h"
 #include "task.h"
 #include "address-opt.h"
+#include "addrinfo.h"
 
