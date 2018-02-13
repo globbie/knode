@@ -16,10 +16,11 @@ timer_subscriber_cb(struct kmqEndPoint *timer_subscriber,
 */
 
 static int
-timer_subscriber_cb(struct kmqEndPoint *timer_subscriber, struct kmqTask *task)
+timer_subscriber_cb(struct kmqEndPoint *timer_subscriber, struct kmqTask *task, void *cb_arg)
 {
     (void) timer_subscriber;
     (void) task;
+    (void) cb_arg;
     return 0;
 }
 

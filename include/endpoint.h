@@ -49,7 +49,8 @@ struct kmqEndPoint
 
         const struct addrinfo *address;
 
-        int (*callback)(struct kmqEndPoint *self, struct kmqTask *task);
+        int (*callback)(struct kmqEndPoint *self, struct kmqTask *task, void *cb_arg);
+        void *cb_arg;
     } options;
 
     // public interface

@@ -102,10 +102,11 @@ error:
     self->stop(self);
 }
 
-int task_callback(struct kmqEndPoint *endpoint, struct kmqTask *task)
+int task_callback(struct kmqEndPoint *endpoint, struct kmqTask *task, void *cb_arg)
 {
     int error_code;
     (void) endpoint;
+    (void) cb_arg;
 
     for (size_t i = 0; i < task->sg_items_count; ++i) {
         const char *data;
