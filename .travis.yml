@@ -1,18 +1,23 @@
 language: c
+
 addons:
   apt:
     sources:
     - george-edison55-precise-backports
     - ubuntu-toolchain-r-test
+    - llvm-toolchain-precise-3.6
     packages:
     - cmake
     - cmake-data
-    - gcc-4.8
+    - gcc-5
     - clang
     - check
     - libsubunit-dev
     - libevent-dev
+
+sudo: required
 dist: trusty
+
 compiler:
 - gcc
 - clang
