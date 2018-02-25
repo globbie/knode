@@ -1,4 +1,5 @@
 #include <string.h>
+#include <errno.h>
 
 #include "remote_endpoint.h"
 #include "proto/proto.h"
