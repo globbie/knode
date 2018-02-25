@@ -11,6 +11,7 @@ addons:
     - clang
     - check
     - libsubunit-dev
+    - libevent-dev
 dist: trusty
 compiler:
 - gcc
