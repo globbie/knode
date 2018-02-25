@@ -2,6 +2,8 @@
 
 #include "chunk_pipeline.h"
 
+#include <stdint.h>
+
 #define TASK_SG_LIST_LEN 100
 
 struct sg_entry;
