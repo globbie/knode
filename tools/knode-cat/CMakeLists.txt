@@ -15,5 +15,9 @@ set(SOURCES
         src/knode-cat.c
 )
 
-add_executable(${PROJECT_NAME} ${SOURCES})
-target_link_libraries(${PROJECT_NAME} kmq ${LIBEVETN_LIBRARY} glb-options)
+add_executable(${PROJECT_NAME}
+    ${SOURCES}
+    $<TARGET_OBJECTS:glb-lib-options>
+)
+
+target_link_libraries(${PROJECT_NAME} kmq ${LIBEVETN_LIBRARY})
