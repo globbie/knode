@@ -1,5 +1,11 @@
 #include "endpoint.h"
 
+const char *const kmq_endpoint_type_str[KMQ_ENDPOINT_TYPES_COUNT] = {
+    "push", "pull",
+    "pub", "sub",
+    "req", "rep"
+};
+
 static int
 heartbeat_cb(struct kmqTimer *timer, void *cb_arg)
 {

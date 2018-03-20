@@ -7,20 +7,15 @@
 static int
 parse__(struct glbOption *self, const char *input, size_t input_len)
 {
-    if (strncmp("push", input, input_len) == 0 && sizeof("push") - 1 == input_len)
-        *((enum kmqEndPointType *) self->data) = KMQ_PUSH;
-    else if (strncmp("pull", input, input_len) == 0 && sizeof("pull") - 1 == input_len)
-        *((enum kmqEndPointType *) self->data) = KMQ_PULL;
-    else if (strncmp("pub", input, input_len) == 0 && sizeof("pub") - 1 == input_len)
-        *((enum kmqEndPointType *) self->data) = KMQ_PUB;
-    else if (strncmp("sub", input, input_len) == 0 && sizeof("sub") - 1 == input_len)
-        *((enum kmqEndPointType *) self->data) = KMQ_SUB;
-    else {
-        options_status = "unknown role";
-        return -1;
+    for (size_t i = 0; i < KMQ_ENDPOINT_TYPES_COUNT; ++i) {
+        if (strncmp(kmq_endpoint_type_str[i], input, input_len) == 0 && strlen(kmq_endpoint_type_str[i]) == input_len) {
+            *((enum kmqEndPointType *) self->data) = (enum kmqEndPointType) i;
+            return 0;
+        }
     }
 
-    return 0;
+    options_status = "unknown role";
+    return -1;
 }
 
 static int

@@ -15,8 +15,13 @@
 enum kmqEndPointType
 {
     KMQ_PUSH, KMQ_PULL,
-    KMQ_PUB,  KMQ_SUB
+    KMQ_PUB,  KMQ_SUB,
+    KMQ_REQ,  KMQ_REP,
+
+    KMQ_ENDPOINT_TYPES_COUNT
 };
+
+extern const char *const kmq_endpoint_type_str[KMQ_ENDPOINT_TYPES_COUNT];
 
 enum kmqEndPointRole
 {
