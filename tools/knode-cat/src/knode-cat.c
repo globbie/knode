@@ -114,9 +114,35 @@ int task_callback(struct kmqEndPoint *endpoint, struct kmqTask *task, void *cb_a
         size_t size;
 
         error_code = task->get_data(task, i,  &data, &size);
-        if (!error_code) return -1;
+        if (error_code != 0) return -1;
 
+        fprintf(stderr, "debug3: got task, size: %zu\n", size);
         printf("%.*s\n", (int) size, data);
+    }
+
+    // send reply
+    if (endpoint->options.type == KMQ_PULL) {
+        struct kmqTask *reply;
+
+        error_code = kmqTask_new(&reply);
+        if (error_code != 0) {
+            fprintf(stderr, "error: kmqKnodeCat task allocation failed\n");
+            return error_code;
+        }
+
+        error_code = task->copy_data(reply, "OK", sizeof("OK"));
+        if (error_code != 0) {
+            fprintf(stderr, "error: kmqKnodeCat append data into reply failed\n");
+            goto free_reply;
+        }
+        error_code = endpoint->schedule_task(endpoint, reply);
+        if (error_code != 0) {
+            fprintf(stderr, "error: kmqKnodeCat schedule reply failed\n");
+            goto free_reply;
+        }
+
+    free_reply:
+        reply->del(reply);
     }
 
     return 0;
@@ -211,6 +237,8 @@ kmqKnodeCat_new(struct kmqKnodeCat **service, const struct kmqKnodeCatConfig *co
 
         error_code = self->endpoint->add_remote(self->endpoint, self->remote);
         if (error_code != 0) goto error;
+
+        self->endpoint->options.callback = task_callback;
 
     } else {
         self->endpoint->options.role = KMQ_TARGET;

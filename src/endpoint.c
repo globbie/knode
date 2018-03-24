@@ -109,6 +109,7 @@ schedule_task(struct kmqEndPoint *self, struct kmqTask *task)
 
         break;
     }
+    case KMQ_PULL:
     case KMQ_PUSH: {
         struct kmqRemoteEndPoint *remote;
 

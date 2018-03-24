@@ -31,6 +31,8 @@ event_cb(struct bufferevent *evbuf, short events, void *arg)
         fprintf(stderr, "debug3: RemoteEndPoint<%p> disconnected\n", (void *) self);
         error_code = self->event_cb(self, KMQ_EPEVENT_DISCONNECTED, self->cb_arg);
     }
+
+    (void) error_code;
 }
 
 static void
@@ -54,7 +56,7 @@ read_cb(struct bufferevent *evbuf, void *arg)
 
     int error_code;
 
-    fprintf(stderr, "debug3: RemoteEndPint<%p> read callback\n", (void *) self);
+    fprintf(stderr, "debug3: RemoteEndPoint<%p> read callback\n", (void *) self);
 
     input = bufferevent_get_input(evbuf);
     if (!input) {
@@ -83,8 +85,9 @@ read_cb(struct bufferevent *evbuf, void *arg)
             fprintf(stderr, "error: RemoteEndPoint<%p> failed to expand buffer\n", (void *) self);
             return;
         }
-    }
 
+        return;
+    }
 
     if (input_length == total_size) {
         struct kmqTask *task;
@@ -101,7 +104,11 @@ read_cb(struct bufferevent *evbuf, void *arg)
         error_code = evbuffer_drain(input, total_size);
         if (error_code != 0) return;
         bufferevent_setwatermark(evbuf, EV_READ, sizeof(*header), sizeof(*header));
+
+        return;
     }
+
+    fprintf(stderr, "error: RemoteEndPoint<%p> malformed package recieved\n", (void*) self);
 }
 
 static int
