@@ -140,9 +140,8 @@ send_(struct kmqRemoteEndPoint *self, struct kmqTask *task)
 
         error_code = evbuffer_add(output, data, size);
         if (error_code != 0) return -1;
+        fprintf(stderr, "debug3: RemoteEndPoint<%p> Task<%p> was send, size: %zu\n", (void *) self, (void *) task, size);
     }
-
-    fprintf(stderr, "debug3: RemoteEndPoint<%p> Task<%p> was send\n", (void *) self, (void *) task);
 
     return 0;
 }
@@ -247,6 +246,8 @@ kmqRemoteEndPoint_new(struct kmqRemoteEndPoint **remote)
     self->send = send_;
     self->set_address = set_address;
     self->del = delete;
+
+    fprintf(stderr, "debug2: RemoteEndPoint<%p> was created\n", (void *) self);
 
     *remote = self;
     return 0;

@@ -48,6 +48,9 @@ event_cb(struct kmqRemoteEndPoint *remote, enum kmqEndPointEvent event,
     case KMQ_EPEVENT_ERROR:
         if (self->options.role == KMQ_INITIATOR) {
             list_move_tail(&self->reconnect_remotes, &remote->endpoint_entry);
+        } else {
+            list_del(&remote->endpoint_entry);
+            remote->del(remote);
         }
         break;
     case KMQ_EPEVENT_DISCONNECTED:

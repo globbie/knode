@@ -103,6 +103,7 @@ error:
     self->stop(self);
 }
 
+// fixme: todo: warning: to send the reply we MUST know the remote endpoint to send reply
 int task_callback(struct kmqEndPoint *endpoint, struct kmqTask *task, void *cb_arg)
 {
     int error_code;
