@@ -29,11 +29,18 @@ init(struct kmqKnode *self)
 static void
 signal_cb(int sig, short what __attribute__((unused)), void *arg)
 {
-    struct kmqKnode *knode = arg; (void) knode;
+    struct kmqKnode *knode = arg;
 
     switch (sig) {
     case SIGINT:
         printf("caught SIGINT\n");
+
+        event_base_loopbreak(knode->evbase);
+
+        if (knode->signal.sigint) {
+            event_del(knode->signal.sigint);
+        }
+
         break;
     default:
         break;
