@@ -27,7 +27,7 @@ timer_tick_cb(struct kmqTimer *self __attribute__((unused)), void *cb_arg)
 
     ++timer_ctx->ticks_counter;
 
-    snprintf(ticks_str, sizeof(ticks_str) - 1,
+    snprintf(ticks_str, sizeof(ticks_str),
              "%"PRIu8, timer_ctx->ticks_counter);
 
     printf("timer tick: '%s'\n", ticks_str);
